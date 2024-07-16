@@ -1,0 +1,15 @@
+
+<resources>
+    <string name="app_name">ExpenceTrackerApp</string>
+    <string name="category_name">Category Name</string>
+    <string name="currency_format">₹%.2f</string>
+    <string name="user_name">John Doe</string>
+    <string name="total_expense">Total Expense</string>
+    <string name="user_icon">User Icon</string>
+    <string name="expense_title_placeholder">Expense Title Placeholder</string>
+    <string name="back">Back</string>
+    <string name="filter">Filter</string>
+    <string name="back_icon"> Back</string>
+    <string name="back_button_description">Back to previous screen</string>
+
+</resources>
