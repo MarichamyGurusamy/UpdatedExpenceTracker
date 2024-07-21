@@ -12,8 +12,20 @@
     <color name="teal_700">#018786</color>
     <color name="purple_200">#ce93d8</color>
     <color name="textColorPrimary">#FFFFFF</color>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#FF03DAC5</color>
+    <color name="colorPrimary">#6200EE</color> <!-- Replace with your color -->
+    <!-- Darker variant of the primary color -->
+    <color name="colorPrimaryDark">#3700B3</color> <!-- Replace with your color -->
+    <!-- Accent color -->
+
+    <!-- Background colors -->
+
+    <color name="headerBackgroundColor">#FFFFFF</color>
+
+    <!-- Text colors -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="totalAmountColor">#FF03DAC5</color>
+    <color name="itemBackgroundColor">#FFFFFF</color>
     <!-- Add more colors as needed -->
 </resources>
