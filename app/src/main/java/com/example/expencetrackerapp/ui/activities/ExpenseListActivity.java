@@ -1,11 +1,18 @@
 package com.example.expencetrackerapp.ui.activities;
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExpenseListActivity extends AppCompatActivity {
+public class ExpenseListActivity extends AppCompatActivity implements ExpenseAdapter.OnExpenseClickListener {
 
     private ExpenseDatabase expenseDatabase;
     private List<Expense> expenseList;
@@ -60,7 +67,7 @@ public class ExpenseListActivity extends AppCompatActivity {
 
         // Set up RecyclerView
         expenseList = new ArrayList<>();
-        expenseAdapter = new ExpenseAdapter(expenseList);
+        expenseAdapter = new ExpenseAdapter(this, expenseList, this); // Use the correct constructor
         expenseRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         expenseRecyclerView.setAdapter(expenseAdapter);
 
@@ -85,6 +92,15 @@ public class ExpenseListActivity extends AppCompatActivity {
         // Initialize database and load expenses
         expenseDatabase = ExpenseDatabase.getInstance(this); // Use the singleton pattern
         loadExpenses();
+
+        ImageView backIcon = findViewById(R.id.back_icon);
+        backIcon.setOnClickListener(v -> {
+            // Create an Intent to navigate to the main activity
+            Intent intent = new Intent(ExpenseListActivity.this, MainActivity.class); // Replace MainActivity with your main activity class
+            startActivity(intent);
+            finish(); // Optional: Close the current activity
+        });
+
     }
 
     private void loadExpenses() {
@@ -106,6 +122,82 @@ public class ExpenseListActivity extends AppCompatActivity {
         for (Expense expense : expenseList) {
             totalAmount += expense.getAmount();
         }
-        totalAmountTextView.setText(String.format("Total Amount:    ₹%.2f", totalAmount));
+        totalAmountTextView.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+    }
+
+    @Override
+    public void onExpenseClick(Expense expense) {
+        // Show the popup dialog
+        showExpenseDialog(expense);
+    }
+
+    private void showExpenseDialog(Expense expense) {
+        // Inflate the popup layout
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup_edit_expense, null);
+
+        // Initialize dialog
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(dialogView);
+        dialog.setTitle("Edit Expense");
+
+        // Initialize UI elements in the dialog
+        EditText editRecipient = dialogView.findViewById(R.id.edit_recipient);
+        EditText editAmount = dialogView.findViewById(R.id.edit_amount);
+        EditText editDate = dialogView.findViewById(R.id.edit_date);
+        Spinner categorySpinner = dialogView.findViewById(R.id.category_spinner);
+        Spinner bankSpinner = dialogView.findViewById(R.id.bank_spinner);
+        Button btnUpdate = dialogView.findViewById(R.id.btn_update);
+        Button btnDelete = dialogView.findViewById(R.id.btn_delete);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+
+        // Populate fields with expense data
+        editRecipient.setText(expense.getRecipient());
+        editAmount.setText(String.valueOf(expense.getAmount()));
+        editDate.setText(expense.getDate());
+
+        // Set up category spinner
+        ArrayAdapter<CharSequence> categoryAdapter = ArrayAdapter.createFromResource(this,
+                R.array.category_array, android.R.layout.simple_spinner_item);
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(categoryAdapter);
+        int categoryPosition = categoryAdapter.getPosition(expense.getCategory());
+        categorySpinner.setSelection(categoryPosition);
+
+        // Set up bank spinner
+        ArrayAdapter<CharSequence> bankAdapter = ArrayAdapter.createFromResource(this,
+                R.array.bank_array, android.R.layout.simple_spinner_item);
+        bankAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        bankSpinner.setAdapter(bankAdapter);
+        int bankPosition = bankAdapter.getPosition(expense.getBankName());
+        bankSpinner.setSelection(bankPosition);
+
+        // Update button click listener
+        btnUpdate.setOnClickListener(v -> {
+            // Update expense logic here
+            String updatedRecipient = editRecipient.getText().toString();
+            double updatedAmount = Double.parseDouble(editAmount.getText().toString());
+            String updatedDate = editDate.getText().toString();
+            String updatedCategory = categorySpinner.getSelectedItem().toString();
+            String updatedBank = bankSpinner.getSelectedItem().toString();
+
+            Expense updatedExpense = new Expense(expense.getId(), updatedRecipient, expense.getMessage(), updatedAmount, updatedDate, updatedBank, updatedCategory);
+            expenseDatabase.updateExpense(updatedExpense);
+            loadExpenses();
+            dialog.dismiss();
+        });
+
+        // Delete button click listener
+        btnDelete.setOnClickListener(v -> {
+            expenseDatabase.deleteExpense(expense.getId());
+            loadExpenses();
+            dialog.dismiss();
+        });
+
+        // Cancel button click listener
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        // Show the dialog
+        dialog.show();
     }
 }

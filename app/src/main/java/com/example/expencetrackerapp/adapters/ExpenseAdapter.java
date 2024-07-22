@@ -1,12 +1,12 @@
 package com.example.expencetrackerapp.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,17 +16,20 @@ import com.example.expencetrackerapp.database.Expense;
 import java.util.List;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
-    private List<Expense> expenseList;
+    private final List<Expense> expenseList;
+    private final Context context;
+    private final OnExpenseClickListener onExpenseClickListener;
 
-    public ExpenseAdapter(List<Expense> expenseList) {
+    public ExpenseAdapter(Context context, List<Expense> expenseList, OnExpenseClickListener onExpenseClickListener) {
+        this.context = context;
         this.expenseList = expenseList;
+        this.onExpenseClickListener = onExpenseClickListener;
     }
 
     @NonNull
     @Override
     public ExpenseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_expence, parent, false); // Corrected layout name
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_expence, parent, false);
         return new ExpenseViewHolder(view);
     }
 
@@ -34,22 +37,18 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
     public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
         Expense expense = expenseList.get(position);
 
-        // Set the recipient/store name
-        holder.recipientTextView.setText(expense.getRecipient());
+        // Set expense details
+        holder.categoryIcon.setImageResource(getCategoryIconResId(expense.getCategory()));
+        holder.recipientText.setText(expense.getRecipient());
+        holder.transactionDate.setText(expense.getDate());
+        holder.expenseAmount.setText(String.valueOf(expense.getAmount()));
+        holder.bankLogo.setImageResource(getBankLogoResId(expense.getBankName()));
 
-        // Set the transaction date
-        holder.transactionDateTextView.setText(expense.getDate());
-
-        // Set the amount
-        holder.amountTextView.setText(String.format("₹%.2f", expense.getAmount()));
-
-        // Set the category icon
-        int categoryIconResId = getCategoryIconResId(expense.getCategory());
-        holder.categoryIconImageView.setImageResource(categoryIconResId);
-
-        // Set the bank logo
-        int bankLogoResId = getBankLogo(expense.getBankName());
-        holder.bankLogoImageView.setImageResource(bankLogoResId);
+        holder.itemView.setOnClickListener(v -> {
+            if (onExpenseClickListener != null) {
+                onExpenseClickListener.onExpenseClick(expense);
+            }
+        });
     }
 
     @Override
@@ -57,66 +56,67 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         return expenseList.size();
     }
 
-    static class ExpenseViewHolder extends RecyclerView.ViewHolder {
-        ImageView categoryIconImageView;
-        TextView recipientTextView;
-        TextView transactionDateTextView; // Added field for date
-        TextView amountTextView;
-        ImageView bankLogoImageView;
-
-        ExpenseViewHolder(@NonNull View itemView) {
-            super(itemView);
-            categoryIconImageView = itemView.findViewById(R.id.category_icon);
-            recipientTextView = itemView.findViewById(R.id.recipient_text);
-            transactionDateTextView = itemView.findViewById(R.id.transaction_date); // Added
-            amountTextView = itemView.findViewById(R.id.expense_amount);
-            bankLogoImageView = itemView.findViewById(R.id.bank_logo);
-        }
-    }
-
-    // Helper method to get the category icon resource ID
+    // Method to get category icon resource ID
     private int getCategoryIconResId(String category) {
-        switch (category.toLowerCase()) {
-            case "food":
+        switch (category) {
+            case "Food":
                 return R.drawable.food_icon;
-            case "shopping":
+            case "Shopping":
                 return R.drawable.shopping_icon;
-            case "groceries":
+            case "Groceries":
                 return R.drawable.groceries_icon;
-            case "transport":
+            case "Transport":
                 return R.drawable.transport_icon;
-            // Added new category
             default:
                 return R.drawable.miscellaneous_icon;
         }
     }
 
-    // Helper method to get the bank logo resource ID
-    @DrawableRes
-    public static int getBankLogo(String bankName) {
-        switch (bankName.toLowerCase()) {
-            case "sbi":
+    // Method to get bank logo resource ID
+    private int getBankLogoResId(String bankName) {
+        switch (bankName) {
+            case "SBI":
                 return R.drawable.sbi_logo;
-            case "hdfc":
+            case "HDFC":
                 return R.drawable.hdfc_logo;
-            case "icici":
+            case "ICICI":
                 return R.drawable.icici_logo;
-            case "axis":
+            case "Axis":
                 return R.drawable.axis_logo;
-            case "kotak":
+            case "Kotak":
                 return R.drawable.kotak_logo;
-            case "indusind":
+            case "IndusInd":
                 return R.drawable.indusind_logo;
-            case "pnb":
-                return R.drawable.pnb_logo;
-            case "yes":
-                return R.drawable.yes_logo;
-            case "bank of baroda":
+            case "Bank of Baroda":
                 return R.drawable.bank_of_baroda_logo;
-            case "central bank of india":
-                return R.drawable.central_bank_logo;
+            case "Canara":
+                return R.drawable.canara_logo;
+            case "Yes Bank":
+                return R.drawable.yes_logo;
+            case "PNB":
+                return R.drawable.pnb_logo;
             default:
-                return R.drawable.default_bank_logo; // Default logo
+                return R.drawable.default_bank_logo;
         }
+    }
+
+    // ViewHolder class
+    public static class ExpenseViewHolder extends RecyclerView.ViewHolder {
+        ImageView categoryIcon, bankLogo;
+        TextView recipientText, transactionDate, expenseAmount;
+
+        public ExpenseViewHolder(@NonNull View itemView) {
+            super(itemView);
+            categoryIcon = itemView.findViewById(R.id.category_icon);
+            recipientText = itemView.findViewById(R.id.recipient_text);
+            transactionDate = itemView.findViewById(R.id.transaction_date);
+            expenseAmount = itemView.findViewById(R.id.expense_amount);
+            bankLogo = itemView.findViewById(R.id.bank_logo);
+        }
+    }
+
+    // Interface for click handling
+    public interface OnExpenseClickListener {
+        void onExpenseClick(Expense expense);
     }
 }

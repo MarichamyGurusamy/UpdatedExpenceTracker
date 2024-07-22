@@ -3,13 +3,12 @@ package com.example.expencetrackerapp.database;
 public class Expense {
     private int id;
     private String recipient;
-    private String message;  // Renamed from messageBody to match your getMessage() method
+    private String message;
     private double amount;
     private String date;
     private String bankName;
     private String category;
 
-    // Constructor
     public Expense(String recipient, String message, double amount, String date, String bankName, String category) {
         this.recipient = recipient;
         this.message = message;
@@ -19,7 +18,17 @@ public class Expense {
         this.category = category;
     }
 
-    // Getters and Setters
+    public Expense(int id, String recipient, String message, double amount, String date, String bankName, String category) {
+        this.id = id;
+        this.recipient = recipient;
+        this.message = message;
+        this.amount = amount;
+        this.date = date;
+        this.bankName = bankName;
+        this.category = category;
+    }
+
+    // Getters and setters for all fields
     public int getId() {
         return id;
     }

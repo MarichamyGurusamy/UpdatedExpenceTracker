@@ -80,51 +80,6 @@ public class ExpenseDatabase extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<Expense> getExpensesByMonth(String month) {
-        List<Expense> expenseList = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE strftime('%m', " + COLUMN_DATE + ") = ?";
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{month});
-
-        if (cursor != null) {
-            try {
-                int idIndex = cursor.getColumnIndex(COLUMN_ID);
-                int recipientIndex = cursor.getColumnIndex(COLUMN_RECIPIENT);
-                int messageIndex = cursor.getColumnIndex(COLUMN_MESSAGE_BODY);
-                int amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT);
-                int dateIndex = cursor.getColumnIndex(COLUMN_DATE);
-                int bankNameIndex = cursor.getColumnIndex(COLUMN_BANK_NAME);
-                int categoryIndex = cursor.getColumnIndex(COLUMN_CATEGORY);
-
-                if (idIndex != -1 && recipientIndex != -1 && messageIndex != -1 && amountIndex != -1 && dateIndex != -1 && bankNameIndex != -1 && categoryIndex != -1) {
-                    if (cursor.moveToFirst()) {
-                        do {
-                            Expense expense = new Expense(
-                                    cursor.getString(recipientIndex),
-                                    cursor.getString(messageIndex),
-                                    cursor.getDouble(amountIndex),
-                                    cursor.getString(dateIndex),
-                                    cursor.getString(bankNameIndex),
-                                    cursor.getString(categoryIndex)
-                            );
-                            expense.setId(cursor.getInt(idIndex));
-                            expenseList.add(expense);
-                        } while (cursor.moveToNext());
-                    }
-                } else {
-                    Log.e("ExpenseDatabase", "One or more column indexes are invalid");
-                }
-            } finally {
-                cursor.close();
-            }
-        } else {
-            Log.e("ExpenseDatabase", "Cursor is null while retrieving expenses");
-        }
-
-        return expenseList;
-    }
-
     public List<Expense> getAllExpenses() {
         List<Expense> expenseList = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + TABLE_NAME;
@@ -142,57 +97,102 @@ public class ExpenseDatabase extends SQLiteOpenHelper {
                 int bankNameIndex = cursor.getColumnIndex(COLUMN_BANK_NAME);
                 int categoryIndex = cursor.getColumnIndex(COLUMN_CATEGORY);
 
-                if (idIndex != -1 && recipientIndex != -1 && messageIndex != -1 && amountIndex != -1 && dateIndex != -1 && bankNameIndex != -1 && categoryIndex != -1) {
-                    if (cursor.moveToFirst()) {
-                        do {
-                            Expense expense = new Expense(
-                                    cursor.getString(recipientIndex),
-                                    cursor.getString(messageIndex),
-                                    cursor.getDouble(amountIndex),
-                                    cursor.getString(dateIndex),
-                                    cursor.getString(bankNameIndex),
-                                    cursor.getString(categoryIndex)
-                            );
-                            expense.setId(cursor.getInt(idIndex));
-                            expenseList.add(expense);
-                        } while (cursor.moveToNext());
-                    }
-                } else {
-                    Log.e("ExpenseDatabase", "One or more column indexes are invalid");
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(idIndex);
+                    String recipient = cursor.getString(recipientIndex);
+                    String message = cursor.getString(messageIndex);
+                    double amount = cursor.getDouble(amountIndex);
+                    String date = cursor.getString(dateIndex);
+                    String bankName = cursor.getString(bankNameIndex);
+                    String category = cursor.getString(categoryIndex);
+
+                    Expense expense = new Expense(id, recipient, message, amount, date, bankName, category);
+                    expenseList.add(expense);
                 }
             } finally {
                 cursor.close();
             }
-        } else {
-            Log.e("ExpenseDatabase", "Cursor is null while retrieving expenses");
         }
-
+        db.close();
         return expenseList;
     }
 
-    private void populateTestData(SQLiteDatabase db) {
-        Expense[] testExpenses = {
-                new Expense("Walmart", "Paid for groceries at Walmart", 45.67, "2024-07-05", "State Bank of India", "Groceries"),
-                new Expense("The Bistro", "Dinner at The Bistro", 23.89, "2024-07-12", "HDFC Bank", "Food"),
-                new Expense("Amazon", "Online purchase at Amazon", 120.50, "2024-07-15", "ICICI Bank", "Shopping"),
-                new Expense("Uber", "Uber ride to the airport", 30.00, "2024-07-18", "Axis Bank", "Transport"),
-                new Expense("The Grand Hotel", "Hotel stay at The Grand Hotel", 200.00, "2024-07-20", "Kotak Mahindra Bank", "Travel")
-        };
+    public List<Expense> getExpensesByMonth(String month) {
+        List<Expense> expenseList = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE strftime('%m', " + COLUMN_DATE + ") = ?";
 
-        for (Expense expense : testExpenses) {
-            ContentValues values = new ContentValues();
-            values.put(COLUMN_RECIPIENT, expense.getRecipient());
-            values.put(COLUMN_MESSAGE_BODY, expense.getMessage()); // Use getMessage() here
-            values.put(COLUMN_AMOUNT, expense.getAmount());
-            values.put(COLUMN_DATE, expense.getDate());
-            values.put(COLUMN_BANK_NAME, expense.getBankName());
-            values.put(COLUMN_CATEGORY, expense.getCategory());
-            long newRowId = db.insert(TABLE_NAME, null, values);
-            if (newRowId == -1) {
-                Log.e("ExpenseDatabase", "Failed to insert test expense");
-            } else {
-                Log.d("ExpenseDatabase", "Test expense inserted successfully with ID: " + newRowId);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{month});
+
+        if (cursor != null) {
+            try {
+                int idIndex = cursor.getColumnIndex(COLUMN_ID);
+                int recipientIndex = cursor.getColumnIndex(COLUMN_RECIPIENT);
+                int messageIndex = cursor.getColumnIndex(COLUMN_MESSAGE_BODY);
+                int amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT);
+                int dateIndex = cursor.getColumnIndex(COLUMN_DATE);
+                int bankNameIndex = cursor.getColumnIndex(COLUMN_BANK_NAME);
+                int categoryIndex = cursor.getColumnIndex(COLUMN_CATEGORY);
+
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(idIndex);
+                    String recipient = cursor.getString(recipientIndex);
+                    String message = cursor.getString(messageIndex);
+                    double amount = cursor.getDouble(amountIndex);
+                    String date = cursor.getString(dateIndex);
+                    String bankName = cursor.getString(bankNameIndex);
+                    String category = cursor.getString(categoryIndex);
+
+                    Expense expense = new Expense(id, recipient, message, amount, date, bankName, category);
+                    expenseList.add(expense);
+                }
+            } finally {
+                cursor.close();
             }
         }
+        db.close();
+        return expenseList;
+    }
+
+    public void updateExpense(Expense expense) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_RECIPIENT, expense.getRecipient());
+        values.put(COLUMN_MESSAGE_BODY, expense.getMessage()); // Use getMessage() for the message body
+        values.put(COLUMN_AMOUNT, expense.getAmount());
+        values.put(COLUMN_DATE, expense.getDate());
+        values.put(COLUMN_BANK_NAME, expense.getBankName());
+        values.put(COLUMN_CATEGORY, expense.getCategory());
+
+        int rowsAffected = db.update(TABLE_NAME, values, COLUMN_ID + " = ?", new String[]{String.valueOf(expense.getId())});
+        if (rowsAffected > 0) {
+            Log.d("ExpenseDatabase", "Expense updated successfully with ID: " + expense.getId());
+        } else {
+            Log.e("ExpenseDatabase", "Failed to update expense with ID: " + expense.getId());
+        }
+        db.close();
+    }
+
+    public void deleteExpense(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsAffected = db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+        if (rowsAffected > 0) {
+            Log.d("ExpenseDatabase", "Expense deleted successfully with ID: " + id);
+        } else {
+            Log.e("ExpenseDatabase", "Failed to delete expense with ID: " + id);
+        }
+        db.close();
+    }
+
+    private void populateTestData(SQLiteDatabase db) {
+        // Add some test data
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_RECIPIENT, "Test Recipient");
+        values.put(COLUMN_MESSAGE_BODY, "Test Message Body");
+        values.put(COLUMN_AMOUNT, 100.50);
+        values.put(COLUMN_DATE, "2024-07-01");
+        values.put(COLUMN_BANK_NAME, "Test Bank");
+        values.put(COLUMN_CATEGORY, "Test Category");
+        db.insert(TABLE_NAME, null, values);
     }
 }
