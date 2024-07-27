@@ -1,5 +1,4 @@
 package com.example.expencetrackerapp.ui.activities;
-
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class ExpenseListActivity extends AppCompatActivity implements ExpenseAdapter.OnExpenseClickListener {
 
@@ -49,6 +49,8 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
         expenseRecyclerView = findViewById(R.id.recyclerViewExpenses);
         totalAmountTextView = findViewById(R.id.total_amount);
         monthFilterSpinner = findViewById(R.id.month_filter);
+
+        expenseDatabase = ExpenseDatabase.getDatabase(this); // Use the singleton pattern
 
         // Set up Spinner month mapping
         monthMap = new HashMap<>();
@@ -89,10 +91,6 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
             }
         });
 
-        // Initialize database and load expenses
-        expenseDatabase = ExpenseDatabase.getInstance(this); // Use the singleton pattern
-        loadExpenses();
-
         ImageView backIcon = findViewById(R.id.back_icon);
         backIcon.setOnClickListener(v -> {
             // Create an Intent to navigate to the main activity
@@ -100,21 +98,27 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
             startActivity(intent);
             finish(); // Optional: Close the current activity
         });
-
     }
 
     private void loadExpenses() {
-        expenseList.clear();
-        String monthNumber = monthMap.get(selectedMonth);
-        if (monthNumber != null) {
-            // Load expenses based on the selected month number
-            expenseList.addAll(expenseDatabase.getExpensesByMonth(monthNumber));
-        } else {
-            // Handle case where selectedMonth is "Current Month" or invalid
-            expenseList.addAll(expenseDatabase.getAllExpenses());
-        }
-        updateTotalAmount();
-        expenseAdapter.notifyDataSetChanged();
+        // Perform database operation on a background thread
+        ExpenseDatabase.databaseWriteExecutor.execute(() -> {
+            List<Expense> expenses;
+            String monthNumber = monthMap.get(selectedMonth);
+            if (monthNumber != null) {
+                // Load expenses based on the selected month number
+                expenses = expenseDatabase.expenseDao().getExpensesByMonth(monthNumber);
+            } else {
+                // Handle case where selectedMonth is "Current Month" or invalid
+                expenses = expenseDatabase.expenseDao().getAllExpenses();
+            }
+            runOnUiThread(() -> {
+                expenseList.clear();
+                expenseList.addAll(expenses);
+                updateTotalAmount();
+                expenseAdapter.notifyDataSetChanged();
+            });
+        });
     }
 
     private void updateTotalAmount() {
@@ -181,17 +185,29 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
             String updatedCategory = categorySpinner.getSelectedItem().toString();
             String updatedBank = bankSpinner.getSelectedItem().toString();
 
-            Expense updatedExpense = new Expense(expense.getId(), updatedRecipient, expense.getMessage(), updatedAmount, updatedDate, updatedBank, updatedCategory);
-            expenseDatabase.updateExpense(updatedExpense);
-            loadExpenses();
-            dialog.dismiss();
+            Expense updatedExpense = new Expense(updatedRecipient, updatedAmount, updatedDate, updatedCategory, updatedBank);
+            updatedExpense.setId(expense.getId()); // Set the existing ID for update
+
+            // Perform update on a background thread
+            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
+                expenseDatabase.expenseDao().updateExpense(updatedExpense);
+                runOnUiThread(() -> {
+                    loadExpenses(); // Refresh the expense list
+                    dialog.dismiss();
+                });
+            });
         });
 
         // Delete button click listener
         btnDelete.setOnClickListener(v -> {
-            expenseDatabase.deleteExpense(expense.getId());
-            loadExpenses();
-            dialog.dismiss();
+            // Perform delete on a background thread
+            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
+                expenseDatabase.expenseDao().deleteExpense(expense);
+                runOnUiThread(() -> {
+                    loadExpenses(); // Refresh the expense list
+                    dialog.dismiss();
+                });
+            });
         });
 
         // Cancel button click listener

@@ -1,4 +1,6 @@
 package com.example.expencetrackerapp.ui.activities;
+
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,16 +9,27 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.expencetrackerapp.R;
+import com.example.expencetrackerapp.database.Expense;
+import com.example.expencetrackerapp.database.ExpenseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     public static void deleteOldDatabase(Context context) {
         context.deleteDatabase("expense_tracker.db");
     }
+
+    private ExpenseDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //deleteOldDatabase(this);
+
+        // Initialize Room database
+        db = ExpenseDatabase.getDatabase(this);
+
+        // Populate initial data if necessary
+        //populateInitialData();
+
         // Initialize the button for viewing all expenses
         Button viewAllExpensesButton = findViewById(R.id.view_all_expenses_button);
 
@@ -30,4 +43,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+//    private void populateInitialData() {
+//        ExpenseDatabase.databaseWriteExecutor.execute(() -> {
+//            // Check if the database is empty
+//            if (db.expenseDao().getAllExpenses().isEmpty()) {
+//                // Add sample expenses
+//                Expense sampleExpense = new Expense("Sample Recipient", 100.50, "2024-07-01", "Sample Category", "Sample Bank", "Sample Message");
+//                db.expenseDao().insertExpense(sampleExpense); // Correct method name
+//            }
+//        });
+//    }
 }

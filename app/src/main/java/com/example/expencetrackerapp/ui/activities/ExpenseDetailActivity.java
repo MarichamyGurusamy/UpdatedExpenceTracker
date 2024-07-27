@@ -1,9 +1,6 @@
 package com.example.expencetrackerapp.ui.activities;
-
 import android.app.Dialog;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,7 +27,7 @@ public class ExpenseDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_expence_list); // Use existing layout
 
         // Initialize database
-        database = ExpenseDatabase.getInstance(this);
+        database = ExpenseDatabase.getDatabase(this);
 
         // Retrieve expense details from intent
         if (getIntent().hasExtra("expense")) {
@@ -102,17 +99,24 @@ public class ExpenseDetailActivity extends AppCompatActivity {
         expense.setCategory(category);
         expense.setBankName(bankName);
 
-        database.updateExpense(expense);
-
-        Toast.makeText(this, "Expense updated successfully", Toast.LENGTH_SHORT).show();
-        finish();
+        ExpenseDatabase.databaseWriteExecutor.execute(() -> {
+            database.expenseDao().updateExpense(expense);
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Expense updated successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            });
+        });
     }
 
     private void deleteExpense() {
         if (expense != null) {
-            database.deleteExpense(expense.getId());
-            Toast.makeText(this, "Expense deleted successfully", Toast.LENGTH_SHORT).show();
-            finish();
+            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
+                database.expenseDao().deleteExpense(expense);
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Expense deleted successfully", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+            });
         }
     }
 }

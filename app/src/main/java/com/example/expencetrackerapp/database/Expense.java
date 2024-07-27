@@ -1,34 +1,30 @@
 package com.example.expencetrackerapp.database;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "expenses")
 public class Expense {
+
+    @PrimaryKey(autoGenerate = true)
     private int id;
+
     private String recipient;
-    private String message;
     private double amount;
     private String date;
-    private String bankName;
     private String category;
+    private String bankName;
 
-    public Expense(String recipient, String message, double amount, String date, String bankName, String category) {
+    // Constructors
+    public Expense(String recipient, double amount, String date, String category, String bankName) {
         this.recipient = recipient;
-        this.message = message;
         this.amount = amount;
         this.date = date;
-        this.bankName = bankName;
         this.category = category;
+        this.bankName = bankName;
     }
 
-    public Expense(int id, String recipient, String message, double amount, String date, String bankName, String category) {
-        this.id = id;
-        this.recipient = recipient;
-        this.message = message;
-        this.amount = amount;
-        this.date = date;
-        this.bankName = bankName;
-        this.category = category;
-    }
-
-    // Getters and setters for all fields
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -43,14 +39,6 @@ public class Expense {
 
     public void setRecipient(String recipient) {
         this.recipient = recipient;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public double getAmount() {
@@ -69,19 +57,19 @@ public class Expense {
         this.date = date;
     }
 
-    public String getBankName() {
-        return bankName;
-    }
-
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
-    }
-
     public String getCategory() {
         return category;
     }
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
     }
 }

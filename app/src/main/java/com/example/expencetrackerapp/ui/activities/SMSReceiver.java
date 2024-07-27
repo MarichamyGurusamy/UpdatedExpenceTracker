@@ -54,10 +54,12 @@ public class SMSReceiver extends BroadcastReceiver {
                             String category = determineCategory(messageBody); // Determine category
                             String bankName = extractBankName(messageBody); // Extract bank name
 
-                            // Save to SQLite database
-                            ExpenseDatabase db = ExpenseDatabase.getInstance(context); // Use singleton pattern
-                            Expense expense = new Expense(recipient, messageBody, amount, messageDate, bankName, category);
-                            db.addExpense(expense);
+                            // Save to Room database
+                            ExpenseDatabase db = ExpenseDatabase.getDatabase(context); // Use singleton pattern
+                            Expense expense = new Expense(recipient, amount, messageDate, category, bankName);
+                            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
+                                db.expenseDao().insertExpense(expense);
+                            });
 
                             Log.d(TAG, "Transaction SMS saved: " + messageBody);
                         } else {
