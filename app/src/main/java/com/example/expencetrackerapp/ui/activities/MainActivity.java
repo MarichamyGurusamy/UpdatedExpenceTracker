@@ -4,8 +4,11 @@ package com.example.expencetrackerapp.ui.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.expencetrackerapp.R;
@@ -33,6 +36,14 @@ public class MainActivity extends AppCompatActivity {
         // Initialize the button for viewing all expenses
         Button viewAllExpensesButton = findViewById(R.id.view_all_expenses_button);
 
+        Button ExpensesButton = findViewById(R.id.view_all_expenses_button1);
+
+        ExpensesButton.setOnClickListener(view -> {
+            updateCreateTodo();
+        });
+
+
+
         // Set an OnClickListener on the button
         viewAllExpensesButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,6 +53,20 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void updateCreateTodo() {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View dialogView = inflater.inflate(R.layout.activty_item, null);
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setView(dialogView);
+        AlertDialog dialog = dialogBuilder.create();
+
+
+
+
+        dialog.show();
     }
 
 //    private void populateInitialData() {

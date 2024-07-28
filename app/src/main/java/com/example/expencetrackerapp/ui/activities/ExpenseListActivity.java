@@ -31,13 +31,14 @@ import java.util.concurrent.ExecutionException;
 public class ExpenseListActivity extends AppCompatActivity implements ExpenseAdapter.OnExpenseClickListener {
 
     private ExpenseDatabase expenseDatabase;
-    private List<Expense> expenseList;
+    private ArrayList<Expense> expenseList;
     private ExpenseAdapter expenseAdapter;
     private RecyclerView expenseRecyclerView;
     private TextView totalAmountTextView;
     private Spinner monthFilterSpinner;
     private String selectedMonth = "Current Month"; // Default value
-
+    ArrayList<Expense> expenses;
+    ArrayList<Expense> monthExpenses;
     private Map<String, String> monthMap;
 
     @Override
@@ -94,7 +95,8 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
         ImageView backIcon = findViewById(R.id.back_icon);
         backIcon.setOnClickListener(v -> {
             // Create an Intent to navigate to the main activity
-            Intent intent = new Intent(ExpenseListActivity.this, MainActivity.class); // Replace MainActivity with your main activity class
+            Intent intent = new Intent(ExpenseListActivity.this, MainActivity.class);
+            //intent.putExtra()
             startActivity(intent);
             finish(); // Optional: Close the current activity
         });
@@ -103,18 +105,23 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
     private void loadExpenses() {
         // Perform database operation on a background thread
         ExpenseDatabase.databaseWriteExecutor.execute(() -> {
-            List<Expense> expenses;
+
             String monthNumber = monthMap.get(selectedMonth);
             if (monthNumber != null) {
                 // Load expenses based on the selected month number
-                expenses = expenseDatabase.expenseDao().getExpensesByMonth(monthNumber);
+                monthExpenses = (ArrayList<Expense>) expenseDatabase.expenseDao().getExpensesByMonth(monthNumber);
             } else {
                 // Handle case where selectedMonth is "Current Month" or invalid
-                expenses = expenseDatabase.expenseDao().getAllExpenses();
+                expenses = (ArrayList<Expense>) expenseDatabase.expenseDao().getAllExpenses();
             }
             runOnUiThread(() -> {
                 expenseList.clear();
-                expenseList.addAll(expenses);
+                if (monthNumber != null){
+                    expenseList.addAll(monthExpenses);
+                }else {
+                    expenseList.addAll(expenses);
+                }
+
                 updateTotalAmount();
                 expenseAdapter.notifyDataSetChanged();
             });
