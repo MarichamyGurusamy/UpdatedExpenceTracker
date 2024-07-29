@@ -1,10 +1,14 @@
 package com.example.expencetrackerapp.database;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "expenses")
-public class Expense {
+public class Expense  implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -23,6 +27,8 @@ public class Expense {
         this.category = category;
         this.bankName = bankName;
     }
+
+
 
     // Getters and Setters
     public int getId() {
@@ -72,4 +78,43 @@ public class Expense {
     public void setBankName(String bankName) {
         this.bankName = bankName;
     }
+
+
+
+    protected Expense(Parcel in) {
+        id = in.readInt();
+        recipient = in.readString();
+        amount = in.readDouble();
+        date = in.readString();
+        category = in.readString();
+        bankName = in.readString();
+    }
+
+    public static final Creator<Expense> CREATOR = new Creator<Expense>() {
+        @Override
+        public Expense createFromParcel(Parcel in) {
+            return new Expense(in);
+        }
+
+        @Override
+        public Expense[] newArray(int size) {
+            return new Expense[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(recipient);
+        dest.writeDouble(amount);
+        dest.writeString(date);
+        dest.writeString(category);
+        dest.writeString(bankName);
+    }
+
 }
