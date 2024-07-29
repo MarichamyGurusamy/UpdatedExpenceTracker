@@ -1,0 +1,24 @@
+<resources>
+    <!-- Category Array -->
+    <string-array name="category_array">
+        <item>Food</item>
+        <item>Shopping</item>
+        <item>Groceries</item>
+        <item>Transport</item>
+        <item>Miscellaneous</item>
+    </string-array>
+
+    <!-- Bank Array -->
+    <string-array name="bank_array">
+        <item>SBI</item>
+        <item>HDFC</item>
+        <item>ICICI</item>
+        <item>Axis</item>
+        <item>Kotak</item>
+        <item>IndusInd</item>
+        <item>Bank of Baroda</item>
+        <item>Canara</item>
+        <item>Yes Bank</item>
+        <item>PNB</item>
+    </string-array>
+</resources>

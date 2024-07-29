@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/recipient_text1"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:text="Shopping"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        app:layout_constraintVertical_chainStyle="packed" />
+    <TextView
+        android:id="@+id/recipient_text2"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:text="Grocery"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/recipient_text1"
+        app:layout_constraintVertical_chainStyle="packed" />
+    <TextView
+        android:id="@+id/recipient_text3"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:text="Food"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/recipient_text2"
+        app:layout_constraintVertical_chainStyle="packed" />
+    <TextView
+        android:id="@+id/recipient_text4"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:text="Micsc"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/recipient_text3"
+        app:layout_constraintVertical_chainStyle="packed" />
+    <TextView
+        android:id="@+id/recipient_text5"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:text="Travel"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/recipient_text4"
+        app:layout_constraintVertical_chainStyle="packed" />
+    
+
+    
+
+
+</RelativeLayout>

@@ -10,6 +10,23 @@
     <string name="back">Back</string>
     <string name="filter">Filter</string>
     <string name="back_icon"> Back</string>
+    <string name="category_icon">Category icon</string>
+    <string name="bank_logo">Bank Logo</string>
     <string name="back_button_description">Back to previous screen</string>
-
+    <string name="bank_logo_desc">Bank Logo</string>
+    <string name="category_icon_desc">Category Icon</string>
+    <string-array name="months_array">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
 </resources>
