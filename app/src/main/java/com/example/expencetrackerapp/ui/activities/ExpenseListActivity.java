@@ -2,6 +2,8 @@ package com.example.expencetrackerapp.ui.activities;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,15 +33,15 @@ import java.util.concurrent.ExecutionException;
 public class ExpenseListActivity extends AppCompatActivity implements ExpenseAdapter.OnExpenseClickListener {
 
     private ExpenseDatabase expenseDatabase;
-    private ArrayList<Expense> expenseList;
+     ArrayList<Expense> expenseList = new ArrayList<>();
     private ExpenseAdapter expenseAdapter;
     private RecyclerView expenseRecyclerView;
     private TextView totalAmountTextView;
-    private Spinner monthFilterSpinner;
+    Spinner monthFilterSpinner;
     private String selectedMonth = "Current Month"; // Default value
-    ArrayList<Expense> expenses;
-    ArrayList<Expense> monthExpenses;
-    private Map<String, String> monthMap;
+    ArrayList<Expense> expenses = new ArrayList<>();
+    ArrayList<Expense> monthExpenses  = new ArrayList<>();;
+    private Map<String, String> monthMap  = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
 
         // Set up Spinner month mapping
         monthMap = new HashMap<>();
+        monthMap.put("Month", "00");
         monthMap.put("January", "01");
         monthMap.put("February", "02");
         monthMap.put("March", "03");
@@ -68,11 +71,21 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
         monthMap.put("November", "11");
         monthMap.put("December", "12");
 
+//        new Thread(() -> {
+//
+//        expenseDatabase.expenseDao().insertExpense(new Expense("John Doe",  123.45 ,"29-07-2024","Grocery" ,"SBI"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense("Jane Smith",  678.90 ,"30-07-2024","Shopping" ,"AXis"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense("Jane Smith",  678.90 ,"31-07-2024","Micsc" ,"ICIC"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense(" Smith",  678.90 ,"30-06-2024","Micsc" ,"IOB"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense("Jane ",  678.90 ,"30-05-2024","Food" ,"SBI"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense("Jane Sm",  678.90 ,"30-04-2024","Travel" ,"AXis"));
+//
+//        }).start();
+
+
+//        loadExpenses();
+
         // Set up RecyclerView
-        expenseList = new ArrayList<>();
-        expenseAdapter = new ExpenseAdapter(this, expenseList, this); // Use the correct constructor
-        expenseRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        expenseRecyclerView.setAdapter(expenseAdapter);
 
         // Set up Spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -92,37 +105,49 @@ public class ExpenseListActivity extends AppCompatActivity implements ExpenseAda
             }
         });
 
+
+
+
         ImageView backIcon = findViewById(R.id.back_icon);
         backIcon.setOnClickListener(v -> {
             // Create an Intent to navigate to the main activity
             Intent intent = new Intent(ExpenseListActivity.this, MainActivity.class);
-            //intent.putExtra()
+            intent.putParcelableArrayListExtra("expenseList", expenseList);
             startActivity(intent);
             finish(); // Optional: Close the current activity
         });
     }
 
     private void loadExpenses() {
+
         // Perform database operation on a background thread
         ExpenseDatabase.databaseWriteExecutor.execute(() -> {
 
             String monthNumber = monthMap.get(selectedMonth);
-            if (monthNumber != null) {
+            Log.d("TAG" ," monthNumber >>> " + monthNumber);
+
+            if ( monthNumber != null && monthNumber.equals("00")) {
                 // Load expenses based on the selected month number
-                monthExpenses = (ArrayList<Expense>) expenseDatabase.expenseDao().getExpensesByMonth(monthNumber);
+                expenses = (ArrayList<Expense>) expenseDatabase.expenseDao().getAllExpenses();
             } else {
                 // Handle case where selectedMonth is "Current Month" or invalid
-                expenses = (ArrayList<Expense>) expenseDatabase.expenseDao().getAllExpenses();
+                monthExpenses = (ArrayList<Expense>) expenseDatabase.expenseDao().getExpensesByMonth(monthNumber);
+
+
             }
+
             runOnUiThread(() -> {
                 expenseList.clear();
-                if (monthNumber != null){
-                    expenseList.addAll(monthExpenses);
-                }else {
+                if (!expenses.isEmpty()){
                     expenseList.addAll(expenses);
+                }else {
+                    expenseList.addAll(monthExpenses);
                 }
 
                 updateTotalAmount();
+                expenseAdapter = new ExpenseAdapter(this, expenseList, this); // Use the correct constructor
+                expenseRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                expenseRecyclerView.setAdapter(expenseAdapter);
                 expenseAdapter.notifyDataSetChanged();
             });
         });

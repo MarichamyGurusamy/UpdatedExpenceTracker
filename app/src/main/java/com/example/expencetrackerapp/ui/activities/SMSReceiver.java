@@ -57,9 +57,7 @@ public class SMSReceiver extends BroadcastReceiver {
                             // Save to Room database
                             ExpenseDatabase db = ExpenseDatabase.getDatabase(context); // Use singleton pattern
                             Expense expense = new Expense(recipient, amount, messageDate, category, bankName);
-                            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
-                                db.expenseDao().insertExpense(expense);
-                            });
+                            ExpenseDatabase.databaseWriteExecutor.execute(() -> db.expenseDao().insertExpense(expense));
 
                             Log.d(TAG, "Transaction SMS saved: " + messageBody);
                         } else {
