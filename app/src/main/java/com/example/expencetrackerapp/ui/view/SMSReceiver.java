@@ -1,4 +1,4 @@
-package com.example.expencetrackerapp.ui.activities;
+package com.example.expencetrackerapp.ui.view;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
-import com.example.expencetrackerapp.database.Expense;
+import com.example.expencetrackerapp.models.Expense;
 import com.example.expencetrackerapp.database.ExpenseDatabase;
 
 import java.text.SimpleDateFormat;

@@ -1,4 +1,4 @@
-package com.example.expencetrackerapp.ui.activities;
+package com.example.expencetrackerapp.ui.view;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -9,7 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.expencetrackerapp.R;
-import com.example.expencetrackerapp.database.Expense;
+import com.example.expencetrackerapp.models.Expense;
 import com.example.expencetrackerapp.database.ExpenseDatabase;
 
 public class ExpenseDetailActivity extends AppCompatActivity {

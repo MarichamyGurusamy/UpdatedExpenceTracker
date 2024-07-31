@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.expencetrackerapp.R;
-import com.example.expencetrackerapp.database.Expense;
+import com.example.expencetrackerapp.models.Expense;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         holder.expenseAmount.setText(String.valueOf(expense.getAmount()));
         holder.bankLogo.setImageResource(getBankLogoResId(expense.getBankName()));
 
-        holder.itemView.setOnClickListener(v -> {
+        holder.recipientText.setOnClickListener(v -> {
             if (onExpenseClickListener != null) {
                 onExpenseClickListener.onExpenseClick(expense);
             }

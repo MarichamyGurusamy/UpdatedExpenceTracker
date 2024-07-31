@@ -27,5 +27,10 @@
     <color name="textSecondary">#757575</color>
     <color name="totalAmountColor">#FF03DAC5</color>
     <color name="itemBackgroundColor">#FFFFFF</color>
+
+    <color name="dark_orange">#ff8f00</color>
+    <color name="light_black">#424242</color>
+
+
     <!-- Add more colors as needed -->
 </resources>
