@@ -15,7 +15,7 @@ import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
 import com.example.expencetrackerapp.interfaces.FragmentNavigation;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class SecondActivity extends AppCompatActivity  implements FragmentNavigation, FragmentBottomNavigation {
+public class AllDetailsActivity extends AppCompatActivity  implements FragmentNavigation, FragmentBottomNavigation {
 
     ActivitySecondBinding binding;
 

@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.expencetrackerapp.databinding.OtpVerificationBinding;
 
-public class FirstActivity extends AppCompatActivity {
+public class MobileNumberActivity extends AppCompatActivity {
 
     OtpVerificationBinding binding;
 
@@ -19,7 +19,7 @@ public class FirstActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         binding.etVerifyMobileNumber.setOnClickListener(v -> {
-            Intent intent = new Intent(this ,VerifyActivity.class);
+            Intent intent = new Intent(this , OTPVerifyActivity.class);
             startActivity(intent);
         });
 

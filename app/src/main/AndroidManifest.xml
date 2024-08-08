@@ -18,10 +18,10 @@ package="com.example.expencetrackerapp">
     android:theme="@style/AppTheme"
     tools:targetApi="31">
     <activity
-        android:name=".ui.view.VerifyActivity"
+        android:name=".ui.view.OTPVerifyActivity"
         android:exported="false"/>
     <activity
-        android:name=".ui.view.SecondActivity"
+        android:name=".ui.view.AllDetailsActivity"
         android:exported="false"/>
     <activity
         android:name=".ui.view.MainActivity"
@@ -33,7 +33,7 @@ package="com.example.expencetrackerapp">
 
 
     <activity
-        android:name=".ui.view.FirstActivity"
+        android:name=".ui.view.MobileNumberActivity"
         android:exported="true">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />

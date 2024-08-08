@@ -3,17 +3,21 @@
     <item
         android:id="@+id/navigation_home"
         android:enabled="true"
-        android:title="Home" />
+        android:title="Home"
+        android:icon="@drawable/baseline_home_24"/>
     <item
         android:id="@+id/navigation_you"
         android:enabled="true"
-        android:title="Specify" />
+        android:title="Specify"
+        android:icon="@drawable/baseline_folder_special_24"/>
     <item
         android:id="@+id/navigation_more"
         android:enabled="true"
-        android:title="Biling" />
+        android:title="Biling"
+        android:icon="@drawable/baseline_e_mobiledata_24"/>
     <item
         android:id="@+id/navigation_cart"
         android:enabled="true"
-        android:title="Budget" />
+        android:title="Budget"
+        android:icon="@drawable/baseline_bug_report_24"/>
 </menu>

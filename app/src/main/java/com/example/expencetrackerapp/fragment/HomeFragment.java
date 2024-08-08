@@ -25,6 +25,8 @@ import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseClickListener {
 
@@ -40,6 +42,15 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
     ArrayList<Expense> expenses = new ArrayList<>();
     ArrayList<Expense> monthExpenses  = new ArrayList<>();
     Map<String, String> monthMap  = new HashMap<>();
+    Integer selectedItem ;
+    String cageNamePostions;
+
+    Integer [] catgNames={1,2,3,4,5};
+
+    String dateTime;
+    Calendar calendar;
+    SimpleDateFormat simpleDateFormat;
+
 
 
 
@@ -109,9 +120,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
             }
         });
 
-        binding.addTaskFABtn.setOnClickListener(v -> {
-            showExpenseDialog();
-        });
+        binding.addTaskFABtn.setOnClickListener(v -> showExpenseDialog(true));
 
 
 
@@ -261,7 +270,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
     }
 
 
-    private void showExpenseDialog() {
+    private void showExpenseDialog(boolean isExpesnse) {
         // Inflate the popup layout
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.popup_edit_expense, null);
@@ -281,65 +290,87 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
         Button btnDelete = dialogView.findViewById(R.id.btn_delete);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
-        // Populate fields with expense data
-//        editRecipient.setText(expense.getRecipient());
-//        editAmount.setText(String.valueOf(expense.getAmount()));
-//        editDate.setText(expense.getDate());
+        if (isExpesnse){
+            btnUpdate.setText("ADD");
+            btnDelete.setVisibility(View.GONE);
 
-        // Set up category spinner
-        ArrayAdapter<CharSequence> categoryAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.category_array, android.R.layout.simple_spinner_item);
-        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(categoryAdapter);
-//        int categoryPosition = categoryAdapter.getPosition(expense.getCategory());
-//        categorySpinner.setSelection(categoryPosition);
+        }
 
-        // Set up bank spinner
+
+        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, catgNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedItem = (Integer) parent.getItemAtPosition(position);
+
+                if (selectedItem == 1) {
+                    cageNamePostions = "Food";
+                } else if (selectedItem == 2) {
+                    cageNamePostions = "Shopping";
+                } else if (selectedItem == 3) {
+                    cageNamePostions = "Groceries";
+                } else if (selectedItem == 4) {
+                    cageNamePostions = "Transport";
+                } else if (selectedItem == 5) {
+                    cageNamePostions = "Miscellaneous";
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+
+
+
         ArrayAdapter<CharSequence> bankAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.bank_array, android.R.layout.simple_spinner_item);
         bankAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         bankSpinner.setAdapter(bankAdapter);
-//        int bankPosition = bankAdapter.getPosition(expense.getBankName());
-//        bankSpinner.setSelection(bankPosition);
 
-        // Update button click listener
+
+
+
+        calendar = Calendar.getInstance();
+        simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss aaa z");
+        dateTime = simpleDateFormat.format(calendar.getTime()).toString();
+          editDate.setText(dateTime);
+
+
+
         btnUpdate.setOnClickListener(v -> {
-            // Update expense logic here
             String updatedRecipient = editRecipient.getText().toString();
             double updatedAmount = Double.parseDouble(editAmount.getText().toString());
             String updatedDate = editDate.getText().toString();
-            String updatedCategory = categorySpinner.getSelectedItem().toString();
+            String updatedCategory = cageNamePostions.toString();
             String updatedBank = bankSpinner.getSelectedItem().toString();
 
             Expense updatedExpense = new Expense(updatedRecipient, updatedAmount, updatedDate, updatedCategory, updatedBank);
-//            updatedExpense.setId(expense.getId()); // Set the existing ID for update
 
-            // Perform update on a background thread
             ExpenseDatabase.databaseWriteExecutor.execute(() -> {
-                expenseDatabase.expenseDao().updateExpense(updatedExpense);
+                expenseDatabase.expenseDao().insertExpense(updatedExpense);
 
-                    loadExpenses(); // Refresh the expense list
+                    loadExpenses();
                     dialog.dismiss();
                 });
             });
 
 
-        // Delete button click listener
         btnDelete.setOnClickListener(v -> {
-            // Perform delete on a background thread
             ExpenseDatabase.databaseWriteExecutor.execute(() -> {
-//                expenseDatabase.expenseDao().deleteExpense(expense);
-
-                    loadExpenses(); // Refresh the expense list
+                    loadExpenses();
                     dialog.dismiss();
                 });
             });
 
 
-        // Cancel button click listener
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
-        // Show the dialog
         dialog.show();
     }
 }

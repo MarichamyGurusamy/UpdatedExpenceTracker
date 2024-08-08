@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.expencetrackerapp.databinding.ActivityVerifyBinding;
 
-public class VerifyActivity extends AppCompatActivity {
+public class OTPVerifyActivity extends AppCompatActivity {
 
     ActivityVerifyBinding binding;
 
@@ -20,7 +20,7 @@ public class VerifyActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         binding.bvVerify.setOnClickListener(v -> {
-        Intent intent = new Intent(this ,SecondActivity.class);
+        Intent intent = new Intent(this , AllDetailsActivity.class);
         startActivity(intent);
 
         });
