@@ -7,11 +7,10 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "expenses")
-public class Expense  implements Parcelable {
+public class Expense implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
-
     private String recipient;
     private double amount;
     private String date;
@@ -19,7 +18,8 @@ public class Expense  implements Parcelable {
     private String bankName;
 
     // Constructors
-    public Expense(String recipient, double amount, String date, String category, String bankName) {
+    public Expense(int id ,String recipient, double amount, String date, String category, String bankName) {
+        this.id = id;
         this.recipient = recipient;
         this.amount = amount;
         this.date = date;

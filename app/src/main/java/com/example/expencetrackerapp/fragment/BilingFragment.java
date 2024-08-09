@@ -24,7 +24,9 @@ import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
 import com.example.expencetrackerapp.models.Billing;
 import com.example.expencetrackerapp.viewmodel.BillingViewModel;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemClikedListener {
 
@@ -50,7 +52,11 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
 
     Billing note;
 
+    String dateTime;
 
+    Calendar calendar;
+
+    SimpleDateFormat simpleDateFormat;
 
 
     @Override
@@ -62,6 +68,8 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
             throw new ClassCastException(context + " must implement FragmentToActivityCommunicator");
         }
     }
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,9 +77,6 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
         binding = ActivityBillingBinding.inflate(inflater, container, false);
 
         communicator.navigateBottomFrag(3, true);
-
-
-
 
         ViewModelProvider provider = new ViewModelProvider(getActivity());
 
@@ -86,21 +91,12 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
             }
         });
 
-
-
-
-
-
-        // Use the singleton pattern
-
         binding.addTaskFABtn.setOnClickListener(v -> {
             newCreateTodo();
         });
 
-
-
-
         return binding.getRoot();
+
     }
 
     private void loadDate(ArrayList<Billing> billings) {
@@ -129,17 +125,24 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
         editTextDate = dialogView.findViewById(R.id.date_text_content);
         Button dialogButton = dialogView.findViewById(R.id.button_save);
 
-        dialogButton.setOnClickListener(v -> saveNewNotes(editTextTitle, editTextContent, editTextDate,dialogBuilder));
+        calendar = Calendar.getInstance();
+        simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        dateTime = simpleDateFormat.format(calendar.getTime()).toString();
+        editTextDate.setText(dateTime);
+
+        String date = editTextDate.getText().toString();
+
+        dialogButton.setOnClickListener(v -> saveNewNotes(editTextTitle, editTextContent, editTextDate,dialogBuilder,date));
 
         dialogBuilder.show();
     }
 
-    private void saveNewNotes(EditText editTextTitle, EditText editTextContent, EditText editTextDate, AlertDialog dialogBuilder) {
+    private void saveNewNotes(EditText editTextTitle, EditText editTextContent, EditText editTextDate, AlertDialog dialogBuilder ,String date) {
 
 
         String title = editTextTitle.getText().toString();
         String amount = editTextContent.getText().toString();
-        String date = editTextDate.getText().toString();
+
 
 
         if (title.isEmpty() || amount.isEmpty() || date.isEmpty()) {
@@ -206,11 +209,7 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
             return;
         }
 
-        if (billing.isMarkAsRead() == true){
-              isMarkAsRead = true;
-        }else {
-            isMarkAsRead = false;
-        }
+        isMarkAsRead = billing.isMarkAsRead();
 
 
         Billing note = new Billing(

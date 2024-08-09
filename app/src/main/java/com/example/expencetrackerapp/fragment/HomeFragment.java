@@ -15,13 +15,17 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.expencetrackerapp.R;
 import com.example.expencetrackerapp.adapters.ExpenseAdapter;
 import com.example.expencetrackerapp.models.Expense;
 import com.example.expencetrackerapp.database.ExpenseDatabase;
 import com.example.expencetrackerapp.databinding.ActivityExpenceListBinding;
 import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
+import com.example.expencetrackerapp.viewmodel.ExpenseViewModel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,22 +40,32 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
     ActivityExpenceListBinding binding;
 
     ExpenseDatabase expenseDatabase;
-    ArrayList<Expense> expenseList = new ArrayList<>();
+
     ExpenseAdapter expenseAdapter;
+
     String selectedMonth = "Current Month";
+
     ArrayList<Expense> expenses = new ArrayList<>();
+
     ArrayList<Expense> monthExpenses  = new ArrayList<>();
+
     Map<String, String> monthMap  = new HashMap<>();
+
     Integer selectedItem ;
+
     String cageNamePostions;
 
     Integer [] catgNames={1,2,3,4,5};
 
+    Integer noteId ;
+
     String dateTime;
+
     Calendar calendar;
+
     SimpleDateFormat simpleDateFormat;
 
-
+    ExpenseViewModel expenseViewModel;
 
 
     @Override
@@ -63,6 +77,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
             throw new ClassCastException(context + " must implement FragmentToActivityCommunicator");
         }
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -71,7 +86,26 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
         communicator.navigateBottomFrag(3, true);
 
+        ViewModelProvider provider = new ViewModelProvider(getActivity());
+
+        expenseViewModel = provider.get(ExpenseViewModel.class);
+
         expenseDatabase = ExpenseDatabase.getDatabase(getContext()); // Use the singleton pattern
+
+        expenseViewModel.getAllNotes().observe(getActivity(), notes -> {
+            if (notes != null) {
+                this.expenses = (ArrayList<Expense>) notes;
+                double totalAmount = 0;
+                for (Expense expense : notes) {
+                    totalAmount += expense.getAmount();
+                }
+                binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+
+                loadExpenses(expenses);
+
+            }
+        });
+
 
         // Set up Spinner month mapping
         monthMap = new HashMap<>();
@@ -88,33 +122,30 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
         monthMap.put("October", "10");
         monthMap.put("November", "11");
         monthMap.put("December", "12");
-
-        new Thread(() -> {
-
-        expenseDatabase.expenseDao().insertExpense(new Expense("John Doe",  123.45 ,"29-07-2024","Grocery" ,"SBI"));
-        expenseDatabase.expenseDao().insertExpense(new Expense("Jane Smith",  678.90 ,"30-07-2024","Shopping" ,"AXis"));
-        expenseDatabase.expenseDao().insertExpense(new Expense("Jane Smith",  678.90 ,"31-07-2024","Micsc" ,"ICIC"));
-        expenseDatabase.expenseDao().insertExpense(new Expense(" Smith",  678.90 ,"30-06-2024","Micsc" ,"IOB"));
-        expenseDatabase.expenseDao().insertExpense(new Expense("Jane ",  678.90 ,"30-05-2024","Food" ,"SBI"));
-        expenseDatabase.expenseDao().insertExpense(new Expense("Jane Sm",  678.90 ,"30-04-2024","Travel" ,"AXis"));
-
-        }).start();
+//
+//        new Thread(() -> {
+//        expenseDatabase.expenseDao().insertExpense(new Expense(noteId != null ? noteId : 0,"John Doe",  123.45 ,"29-07-2024","Grocery" ,"SBI"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense(noteId != null ? noteId : 0,"Jane Smith",  678.90 ,"30-07-2024","Shopping" ,"AXis"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense(noteId != null ? noteId : 0,"Jane Smith",  678.90 ,"31-07-2024","Micsc" ,"ICIC"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense(noteId != null ? noteId : 0," Smith",  678.90 ,"30-06-2024","Micsc" ,"IOB"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense(noteId != null ? noteId : 0,"Jane ",  678.90 ,"30-05-2024","Food" ,"SBI"));
+//        expenseDatabase.expenseDao().insertExpense(new Expense(noteId != null ? noteId : 0,"Jane Sm",  678.90 ,"30-04-2024","Travel" ,"AXis"));
+//        }).start();
 
 
-
-
-        // Set up Spinner
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.months_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.months_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.monthFilter.setAdapter(adapter);
         binding.monthFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedMonth = parent.getItemAtPosition(position).toString();
-                loadExpenses();
-            }
+                String monthNumber = monthMap.get(selectedMonth);
+                if (!monthNumber.equals("00")) {
+                    slecteParticiluarMonth(monthNumber);
+                }
 
+            }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -122,63 +153,44 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
         binding.addTaskFABtn.setOnClickListener(v -> showExpenseDialog(true));
 
-
-
-
-        binding.backAll.setOnClickListener(v -> {
-            // Create an Intent to navigate to the main activity
-//            Intent intent = new Intent(getContext(), MainActivity.class);
-////            intent.putParcelableArrayListExtra("expenseList", expenseList);
-//            startActivity(intent);
-
-
-        });
-
-
+        binding.backAll.setOnClickListener(v -> {});
 
         return binding.getRoot();
+
     }
 
-    private void loadExpenses() {
+    private void slecteParticiluarMonth(String monthNumber) {
 
-        // Perform database operation on a background thread
-        ExpenseDatabase.databaseWriteExecutor.execute(() -> {
 
-            String monthNumber = monthMap.get(selectedMonth);
-            Log.d("TAG" ," monthNumber >>> " + monthNumber);
+        Log.d("TAG" ," loadDate >>> 4 " + monthNumber);
 
-            if ( monthNumber != null && monthNumber.equals("00")) {
-                // Load expenses based on the selected month number
-                expenses = (ArrayList<Expense>) expenseDatabase.expenseDao().getAllExpenses();
-            } else {
-                // Handle case where selectedMonth is "Current Month" or invalid
-                monthExpenses = (ArrayList<Expense>) expenseDatabase.expenseDao().getExpensesByMonth(monthNumber);
+        expenseViewModel.getExpensesByMonth(monthNumber).observe(getActivity(), notes -> {
 
+            Log.d("TAG" ," loadDate >>> 5 " + notes);
+
+            if (notes != null) {
+                this.monthExpenses = (ArrayList<Expense>) notes;
+                double totalAmount = 0;
+                for (Expense expense : notes) {
+                    totalAmount += expense.getAmount();
+                }
+                binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+
+                Log.d("TAG" ," loadDate >>> 2 " + monthExpenses);
+
+                loadExpenses(monthExpenses);
 
             }
-
-                expenseList.clear();
-                if (!expenses.isEmpty()){
-                    expenseList.addAll(expenses);
-                }else {
-                    expenseList.addAll(monthExpenses);
-                }
-
-                updateTotalAmount();
-                expenseAdapter = new ExpenseAdapter(getContext(), expenseList, this); // Use the correct constructor
-                binding.recyclerViewExpenses.setLayoutManager(new LinearLayoutManager(getContext()));
-                binding.recyclerViewExpenses.setAdapter(expenseAdapter);
-                expenseAdapter.notifyDataSetChanged();
-            });
-
+        });
     }
 
-    private void updateTotalAmount() {
-        double totalAmount = 0;
-        for (Expense expense : expenseList) {
-            totalAmount += expense.getAmount();
-        }
-        binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+    private void loadExpenses(ArrayList<Expense> expenses) {
+
+        expenseAdapter = new ExpenseAdapter( expenses, this); // Use the correct constructor
+        binding.recyclerViewExpenses.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerViewExpenses.setAdapter(expenseAdapter);
+        expenseAdapter.notifyDataSetChanged();
+
     }
 
     @Override
@@ -228,47 +240,34 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
         int bankPosition = bankAdapter.getPosition(expense.getBankName());
         bankSpinner.setSelection(bankPosition);
 
-        // Update button click listener
-        btnUpdate.setOnClickListener(v -> {
-            // Update expense logic here
+        btnUpdate.setOnClickListener(v -> updateDetails(expense,editRecipient,editAmount,editDate,categorySpinner,bankSpinner,dialog));
+
+        btnDelete.setOnClickListener(v ->{
+            ExpenseDatabase.databaseWriteExecutor.execute(() -> expenseViewModel.deleteItme(expense.getId()));
+            dialog.dismiss();
+                });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+
+    }
+
+    private void updateDetails(Expense expense, EditText editRecipient, EditText editAmount, EditText editDate, Spinner categorySpinner, Spinner bankSpinner,  Dialog dialog) {
+
             String updatedRecipient = editRecipient.getText().toString();
             double updatedAmount = Double.parseDouble(editAmount.getText().toString());
             String updatedDate = editDate.getText().toString();
             String updatedCategory = categorySpinner.getSelectedItem().toString();
             String updatedBank = bankSpinner.getSelectedItem().toString();
 
-            Expense updatedExpense = new Expense(updatedRecipient, updatedAmount, updatedDate, updatedCategory, updatedBank);
-            updatedExpense.setId(expense.getId()); // Set the existing ID for update
+            Expense updatedExpense = new Expense(expense.getId(), updatedRecipient, updatedAmount, updatedDate, updatedCategory, updatedBank);
 
-            // Perform update on a background thread
-            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
-                expenseDatabase.expenseDao().updateExpense(updatedExpense);
+            ExpenseDatabase.databaseWriteExecutor.execute(() -> expenseViewModel.update(updatedExpense));
 
-                    loadExpenses(); // Refresh the expense list
-                    dialog.dismiss();
-                });
-            });
+            dialog.dismiss();
 
-
-        // Delete button click listener
-        btnDelete.setOnClickListener(v -> {
-            // Perform delete on a background thread
-            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
-                expenseDatabase.expenseDao().deleteExpense(expense);
-
-                    loadExpenses(); // Refresh the expense list
-                    dialog.dismiss();
-                });
-            });
-
-
-        // Cancel button click listener
-        btnCancel.setOnClickListener(v -> dialog.dismiss());
-
-        // Show the dialog
-        dialog.show();
     }
-
 
     private void showExpenseDialog(boolean isExpesnse) {
         // Inflate the popup layout
@@ -337,7 +336,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
 
         calendar = Calendar.getInstance();
-        simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss aaa z");
+        simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         dateTime = simpleDateFormat.format(calendar.getTime()).toString();
           editDate.setText(dateTime);
 
@@ -350,27 +349,19 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
             String updatedCategory = cageNamePostions.toString();
             String updatedBank = bankSpinner.getSelectedItem().toString();
 
-            Expense updatedExpense = new Expense(updatedRecipient, updatedAmount, updatedDate, updatedCategory, updatedBank);
+            Expense updatedExpense = new Expense(noteId != null ? noteId : 0,
+                    updatedRecipient, updatedAmount, updatedDate, updatedCategory, updatedBank);
 
             ExpenseDatabase.databaseWriteExecutor.execute(() -> {
                 expenseDatabase.expenseDao().insertExpense(updatedExpense);
-
-                    loadExpenses();
                     dialog.dismiss();
-                });
-            });
-
-
-        btnDelete.setOnClickListener(v -> {
-            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
-                    loadExpenses();
-                    dialog.dismiss();
-                });
-            });
+                });});
 
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+
     }
+
 }

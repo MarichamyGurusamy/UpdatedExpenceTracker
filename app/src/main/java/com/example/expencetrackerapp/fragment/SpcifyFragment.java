@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.expencetrackerapp.R;
@@ -19,6 +20,7 @@ import com.example.expencetrackerapp.models.Expense;
 import com.example.expencetrackerapp.database.ExpenseDatabase;
 import com.example.expencetrackerapp.databinding.ActivityExpenceListBinding;
 import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
+import com.example.expencetrackerapp.viewmodel.ExpenseViewModel;
 
 import java.util.ArrayList;
 
@@ -28,16 +30,11 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
     ActivityExpenceListBinding binding;
 
-    ExpenseDatabase expenseDatabase;
-
     ArrayList<Expense> expenseList = new ArrayList<>();
-
-    ArrayList<Expense> expenseDetalisList = new ArrayList<>();
 
     ExpenseAdapter expenseAdapter;
 
-
-
+    ExpenseViewModel expenseViewModel;
 
 
 
@@ -58,11 +55,9 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
         communicator.navigateBottomFrag(3, true);
 
-        expenseDatabase = ExpenseDatabase.getDatabase(getContext()); // Use the singleton pattern
+        ViewModelProvider provider = new ViewModelProvider(getActivity());
 
-        new Thread(() -> {
-        expenseList = (ArrayList<Expense>) expenseDatabase.expenseDao().getAllExpenses();
-        }).start();
+        expenseViewModel = provider.get(ExpenseViewModel.class);
 
 
         binding.addTaskFABtn.setOnClickListener(v -> newCreateTodo());
@@ -86,23 +81,23 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
 
         textTitleShopping.setOnClickListener(v -> {
-            SelectedDate("1");
+            SelectedDate("Shopping");
             dialog.dismiss();
         });
         textTitleGrocery.setOnClickListener(v -> {
-            SelectedDate("2");
+            SelectedDate("Grocery");
             dialog.dismiss();
         });
         textTitleFood.setOnClickListener(v -> {
-            SelectedDate("3");
+            SelectedDate("Food");
             dialog.dismiss();
         });
         textTitleMicsc.setOnClickListener(v -> {
-            SelectedDate("4");
+            SelectedDate("Micsc");
             dialog.dismiss();
         });
         textTitleTravel.setOnClickListener(v -> {
-            SelectedDate("5");
+            SelectedDate("Travel");
             dialog.dismiss();
         });
 
@@ -112,27 +107,28 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
     private void SelectedDate(String postions) {
 
-        for (Expense expense : expenseList) {
-            if (expense.getCategory().equals("Shopping") && postions.equals("1")) {
-                expenseDetalisList.add(expense);
-//                Log.d("TAG", " expenseList >>> 1 " + expenseDetalisList.size());
-            } else if (expense.getCategory().equals("Grocery") && postions.equals("2")) {
-                expenseDetalisList.add(expense);
-//                Log.d("TAG", " expenseList >>> 2 " + expenseDetalisList.size());
-            } else if (expense.getCategory().equals("Food") && postions.equals("3")) {
-                expenseDetalisList.add(expense);
-//                Log.d("TAG", " expenseList >>> 3 " + expenseDetalisList.size());
-            } else if (expense.getCategory().equals("Micsc") && postions.equals("4")) {
-                expenseDetalisList.add(expense);
-//                Log.d("TAG", " expenseList >>> 4 " + expenseDetalisList.size());
-            } else if (expense.getCategory().equals("Travel") && postions.equals("5")) {
-                expenseDetalisList.add(expense);
-//                Log.d("TAG", " expenseList >>> 5 " + expenseDetalisList.size());
-            }
-        }
-        if (!expenseDetalisList.isEmpty() && expenseDetalisList != null) {
 
-            expenseAdapter = new ExpenseAdapter(getContext(), expenseDetalisList, this); // Use the correct constructor
+        expenseViewModel.getSpecifityExpenses(postions).observe(getActivity(), notes -> {
+            if (notes != null) {
+                this.expenseList = (ArrayList<Expense>) notes;
+                double totalAmount = 0;
+                for (Expense expense : notes) {
+                    totalAmount += expense.getAmount();
+                }
+                binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+                loadExpenses(expenseList);
+
+            }
+        });
+
+
+    }
+
+    private void loadExpenses(ArrayList<Expense> expenseList) {
+
+        if (!expenseList.isEmpty() && expenseList != null) {
+
+            expenseAdapter = new ExpenseAdapter(expenseList, this); // Use the correct constructor
             binding.recyclerViewExpenses.setLayoutManager(new LinearLayoutManager(getContext()));
             binding.recyclerViewExpenses.setAdapter(expenseAdapter);
             expenseAdapter.notifyDataSetChanged();

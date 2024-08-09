@@ -22,6 +22,8 @@ public class SMSReceiver extends BroadcastReceiver {
 
     private static final String TAG = "SMSReceiver";
     private final Map<String, String> transactionCategories = new HashMap<>();
+    Integer noteId ;
+
 
     public SMSReceiver() {
         // Initialize transaction categories
@@ -56,7 +58,7 @@ public class SMSReceiver extends BroadcastReceiver {
 
                             // Save to Room database
                             ExpenseDatabase db = ExpenseDatabase.getDatabase(context); // Use singleton pattern
-                            Expense expense = new Expense(recipient, amount, messageDate, category, bankName);
+                            Expense expense = new Expense(noteId != null ? noteId : 0,recipient, amount, messageDate, category, bankName);
                             ExpenseDatabase.databaseWriteExecutor.execute(() -> db.expenseDao().insertExpense(expense));
 
                             Log.d(TAG, "Transaction SMS saved: " + messageBody);
