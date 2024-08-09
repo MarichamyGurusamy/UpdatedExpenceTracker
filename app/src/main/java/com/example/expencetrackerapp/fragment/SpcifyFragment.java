@@ -36,6 +36,8 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
     ExpenseViewModel expenseViewModel;
 
+    String specifyItem;
+
 
 
     @Override
@@ -58,6 +60,11 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
         ViewModelProvider provider = new ViewModelProvider(getActivity());
 
         expenseViewModel = provider.get(ExpenseViewModel.class);
+
+
+
+            binding.toolbarTitle.setText("Speify Expenses");
+
 
 
         binding.addTaskFABtn.setOnClickListener(v -> newCreateTodo());
@@ -85,7 +92,7 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
             dialog.dismiss();
         });
         textTitleGrocery.setOnClickListener(v -> {
-            SelectedDate("Grocery");
+            SelectedDate("Groceries");
             dialog.dismiss();
         });
         textTitleFood.setOnClickListener(v -> {
@@ -93,11 +100,11 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
             dialog.dismiss();
         });
         textTitleMicsc.setOnClickListener(v -> {
-            SelectedDate("Micsc");
+            SelectedDate("Micscellaneous");
             dialog.dismiss();
         });
         textTitleTravel.setOnClickListener(v -> {
-            SelectedDate("Travel");
+            SelectedDate("Transport");
             dialog.dismiss();
         });
 
@@ -106,6 +113,12 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
     }
 
     private void SelectedDate(String postions) {
+
+        this.specifyItem = postions;
+
+        if (specifyItem != null){
+            binding.toolbarTitle.setText(" " + specifyItem + " " + "Expenses");
+        }
 
 
         expenseViewModel.getSpecifityExpenses(postions).observe(getActivity(), notes -> {
@@ -127,6 +140,9 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
     private void loadExpenses(ArrayList<Expense> expenseList) {
 
         if (!expenseList.isEmpty() && expenseList != null) {
+
+            binding.itemContents.setVisibility(View.GONE);
+            binding.recyclerViewExpenses.setVisibility(View.VISIBLE);
 
             expenseAdapter = new ExpenseAdapter(expenseList, this); // Use the correct constructor
             binding.recyclerViewExpenses.setLayoutManager(new LinearLayoutManager(getContext()));

@@ -103,6 +103,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view" />
 
+    <TextView
+        android:id="@+id/itemContents"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="No Item Contents"
+        android:gravity="center"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@+id/header_layout" />
+
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addTaskFABtn"
         android:layout_width="wrap_content"

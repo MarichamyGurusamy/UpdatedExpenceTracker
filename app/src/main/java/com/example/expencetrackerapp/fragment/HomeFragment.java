@@ -51,11 +51,11 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
     Map<String, String> monthMap  = new HashMap<>();
 
-    Integer selectedItem ;
+    String selectedItem ;
 
     String cageNamePostions;
 
-    Integer [] catgNames={1,2,3,4,5};
+    String [] catgNames={"Food","Shopping","Groceries","Transport","Miscellaneous"};
 
     Integer noteId ;
 
@@ -296,27 +296,14 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
         }
 
 
-        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, catgNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, catgNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
 
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedItem = (Integer) parent.getItemAtPosition(position);
-
-                if (selectedItem == 1) {
-                    cageNamePostions = "Food";
-                } else if (selectedItem == 2) {
-                    cageNamePostions = "Shopping";
-                } else if (selectedItem == 3) {
-                    cageNamePostions = "Groceries";
-                } else if (selectedItem == 4) {
-                    cageNamePostions = "Transport";
-                } else if (selectedItem == 5) {
-                    cageNamePostions = "Miscellaneous";
-                }
-
+                selectedItem = (String) parent.getItemAtPosition(position);
             }
 
             @Override
@@ -346,7 +333,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
             String updatedRecipient = editRecipient.getText().toString();
             double updatedAmount = Double.parseDouble(editAmount.getText().toString());
             String updatedDate = editDate.getText().toString();
-            String updatedCategory = cageNamePostions.toString();
+            String updatedCategory = selectedItem.toString();
             String updatedBank = bankSpinner.getSelectedItem().toString();
 
             Expense updatedExpense = new Expense(noteId != null ? noteId : 0,
