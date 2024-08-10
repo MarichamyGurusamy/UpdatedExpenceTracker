@@ -63,6 +63,9 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
 
 
+        binding.itemContents.setVisibility(View.VISIBLE);
+//        binding.recyclerViewExpenses.setVisibility(View.VISIBLE);
+
             binding.toolbarTitle.setText("Speify Expenses");
 
 
