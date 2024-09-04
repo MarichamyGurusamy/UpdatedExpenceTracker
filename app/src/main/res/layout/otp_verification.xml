@@ -82,6 +82,7 @@
                 android:textStyle="bold" />
 
 
+
             <ProgressBar
                 android:id="@+id/pb_progressBar"
                 android:layout_width="40dp"
