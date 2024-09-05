@@ -1,37 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.expencetrackerapp">
+xmlns:tools="http://schemas.android.com/tools"
+package="com.example.expencetrackerapp">
 
-    <!-- Permissions -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-feature android:name="android.hardware.telephony" android:required="true" />
+<uses-permission android:name="android.permission.RECEIVE_SMS" />
+<uses-permission android:name="android.permission.READ_SMS" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-feature android:name="android.hardware.telephony" android:required="true" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".ui.activities.MainActivity"
-            android:exported="true" android:theme="@style/AppTheme">
+<application
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme"
+    tools:targetApi="31">
+    <activity
+        android:name=".ui.view.OTPVerifyActivity"
+        android:exported="false"/>
+    <activity
+        android:name=".ui.view.AllDetailsActivity"
+        android:exported="false"/>
+    <activity
+        android:name=".ui.view.MainActivity"
+        android:exported="false"/>
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".ui.activities.ExpenseListActivity" android:exported="true"/>
+    <activity
+        android:name=".ui.view.MobileNumberActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
 
-        <receiver android:name=".ui.activities.SMSReceiver" android:exported="true">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
-            </intent-filter>
-        </receiver>
-    </application>
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+
+
+    <receiver android:name=".ui.view.SMSReceiver" android:exported="true">
+        <intent-filter>
+            <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+        </intent-filter>
+    </receiver>
+
+
+</application>
 
 </manifest>

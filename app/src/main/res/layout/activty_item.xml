@@ -1,76 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    android:background="@drawable/background_shape_spc">
 
     <TextView
         android:id="@+id/recipient_text1"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:text="Shopping"
-        android:gravity="center"
-        android:textColor="@color/black"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
+        android:gravity="center"
+        android:text="@string/shopping"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintVertical_chainStyle="packed" />
+
     <TextView
         android:id="@+id/recipient_text2"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:text="Grocery"
-        android:gravity="center"
-        android:textColor="@color/black"
+        android:layout_below="@+id/recipient_text1"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/recipient_text1"
+        android:gravity="center"
+        android:text="@string/grocery"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintVertical_chainStyle="packed" />
+
     <TextView
         android:id="@+id/recipient_text3"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:text="Food"
-        android:gravity="center"
-        android:textColor="@color/black"
+        android:layout_below="@+id/recipient_text2"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/recipient_text2"
+        android:gravity="center"
+        android:text="@string/food"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintVertical_chainStyle="packed" />
+
     <TextView
         android:id="@+id/recipient_text4"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:text="Micsc"
-        android:gravity="center"
-        android:textColor="@color/black"
+        android:layout_below="@+id/recipient_text3"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/recipient_text3"
+        android:gravity="center"
+        android:text="@string/micsc"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintVertical_chainStyle="packed" />
+
     <TextView
         android:id="@+id/recipient_text5"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:text="Travel"
-        android:gravity="center"
-        android:textColor="@color/black"
+        android:layout_below="@+id/recipient_text4"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/recipient_text4"
+        android:gravity="center"
+        android:text="@string/travel"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintVertical_chainStyle="packed" />
-    
-
-    
 
 
 </RelativeLayout>
