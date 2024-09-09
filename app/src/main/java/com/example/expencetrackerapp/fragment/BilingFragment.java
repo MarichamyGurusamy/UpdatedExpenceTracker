@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,6 +28,7 @@ import com.example.expencetrackerapp.viewmodel.BillingViewModel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import androidx.recyclerview.widget.DividerItemDecoration;
 
 public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemClikedListener {
 
@@ -105,6 +107,12 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
             billingAdapter = new BillingsAdapter(getContext(), billings ,this);
             binding.recyclerViewExpenses2.setLayoutManager(new LinearLayoutManager(getContext()));
             binding.recyclerViewExpenses2.setAdapter(billingAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        // Set a custom drawable for the divider
+        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.divider));
+        binding.recyclerViewExpenses2.addItemDecoration(dividerItemDecoration);
+
             billingAdapter.notifyDataSetChanged();
 
 

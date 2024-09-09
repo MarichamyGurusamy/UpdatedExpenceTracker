@@ -51,5 +51,6 @@
     <string name="grocery">Grocery</string>
     <string name="shopping">Shopping</string>
     <string name="billing">Billing</string>
+    <string name="education">Education</string>
 
 </resources>

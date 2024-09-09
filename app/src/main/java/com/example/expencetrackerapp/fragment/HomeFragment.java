@@ -12,10 +12,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.expencetrackerapp.R;
@@ -55,7 +59,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
     String cageNamePostions;
 
-    String [] catgNames={"Food","Shopping","Groceries","Transport","Miscellaneous"};
+    String [] catgNames={"Food","Shopping","Groceries","Transport","Miscellaneous","Education"};
 
     Integer noteId ;
 
@@ -189,6 +193,10 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
         expenseAdapter = new ExpenseAdapter( expenses, this); // Use the correct constructor
         binding.recyclerViewExpenses.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewExpenses.setAdapter(expenseAdapter);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        // Set a custom drawable for the divider
+        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.divider));
+        binding.recyclerViewExpenses.addItemDecoration(dividerItemDecoration);
         expenseAdapter.notifyDataSetChanged();
 
     }
@@ -265,11 +273,12 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
             ExpenseDatabase.databaseWriteExecutor.execute(() -> expenseViewModel.update(updatedExpense));
 
+
             dialog.dismiss();
 
     }
 
-    private void showExpenseDialog(boolean isExpesnse) {
+    private void showExpenseDialog(boolean isExpense) {
         // Inflate the popup layout
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.popup_edit_expense, null);
@@ -289,12 +298,10 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
         Button btnDelete = dialogView.findViewById(R.id.btn_delete);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
-        if (isExpesnse){
+        if (isExpense) {
             btnUpdate.setText("ADD");
-            btnDelete.setVisibility(View.GONE);
-
+            btnDelete.setVisibility(View.INVISIBLE);
         }
-
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, catgNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -311,44 +318,59 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
             }
         });
 
-
-
-
         ArrayAdapter<CharSequence> bankAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.bank_array, android.R.layout.simple_spinner_item);
         bankAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         bankSpinner.setAdapter(bankAdapter);
 
-
-
-
-        calendar = Calendar.getInstance();
-        simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        dateTime = simpleDateFormat.format(calendar.getTime()).toString();
-          editDate.setText(dateTime);
-
-
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String dateTime = simpleDateFormat.format(calendar.getTime());
+        editDate.setText(dateTime);
 
         btnUpdate.setOnClickListener(v -> {
             String updatedRecipient = editRecipient.getText().toString();
-            double updatedAmount = Double.parseDouble(editAmount.getText().toString());
-            String updatedDate = editDate.getText().toString();
-            String updatedCategory = selectedItem.toString();
-            String updatedBank = bankSpinner.getSelectedItem().toString();
+            String amountText = editAmount.getText().toString();
+            double updatedAmount = 0;
+            boolean isValid = true;
 
-            Expense updatedExpense = new Expense(noteId != null ? noteId : 0,
-                    updatedRecipient, updatedAmount, updatedDate, updatedCategory, updatedBank);
+            // Check if recipient and amount are not empty
+            if (updatedRecipient.isEmpty()) {
+                Toast.makeText(getContext(), "Recipient is required", Toast.LENGTH_SHORT).show();
+                isValid = false;
+            }
 
-            ExpenseDatabase.databaseWriteExecutor.execute(() -> {
-                expenseDatabase.expenseDao().insertExpense(updatedExpense);
+            if (amountText.isEmpty()) {
+                Toast.makeText(getContext(), "Amount is required", Toast.LENGTH_SHORT).show();
+                isValid = false;
+            } else {
+                try {
+                    updatedAmount = Double.parseDouble(amountText);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Invalid amount format", Toast.LENGTH_SHORT).show();
+                    isValid = false;
+                }
+            }
+
+            if (isValid) {
+                String updatedDate = editDate.getText().toString();
+                String updatedCategory = selectedItem != null ? selectedItem : "";
+                String updatedBank = bankSpinner.getSelectedItem().toString();
+
+                Expense updatedExpense = new Expense(noteId != null ? noteId : 0,
+                        updatedRecipient, updatedAmount, updatedDate, updatedCategory, updatedBank);
+
+                ExpenseDatabase.databaseWriteExecutor.execute(() -> {
+                    expenseDatabase.expenseDao().insertExpense(updatedExpense);
                     dialog.dismiss();
-                });});
-
+                });
+            }
+        });
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-
     }
+
 
 }

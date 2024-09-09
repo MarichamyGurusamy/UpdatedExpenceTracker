@@ -88,6 +88,7 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
         TextView textTitleFood = dialogView.findViewById(R.id.recipient_text3);
         TextView textTitleMicsc = dialogView.findViewById(R.id.recipient_text4);
         TextView textTitleTravel = dialogView.findViewById(R.id.recipient_text5);
+        TextView textTitleEducation = dialogView.findViewById(R.id.recipient_text6);
 
 
         textTitleShopping.setOnClickListener(v -> {
@@ -110,6 +111,11 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
             SelectedDate("Transport");
             dialog.dismiss();
         });
+        textTitleEducation.setOnClickListener(v -> {
+            SelectedDate("Education");
+            dialog.dismiss();
+        });
+
 
 
         dialog.show();

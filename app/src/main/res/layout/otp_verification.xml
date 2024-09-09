@@ -59,7 +59,7 @@
                 android:textColor="#3F3C3C"
                 android:textSize="16sp"
                 android:textStyle="bold"
-
+                android:maxLength="10"
                 />
 
         </LinearLayout>
