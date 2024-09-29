@@ -16,7 +16,6 @@
     <string name="bank_logo_desc">Bank Logo</string>
     <string name="category_icon_desc">Category Icon</string>
     <string-array name="months_array">
-        <item>Month</item>
         <item>January</item>
         <item>February</item>
         <item>March</item>
@@ -53,4 +52,12 @@
     <string name="billing">Billing</string>
     <string name="education">Education</string>
 
+    <string-array name="years_array">
+        <item>2026</item>
+        <item>2025</item>
+        <item>2024</item>
+        <item>2023</item>
+    </string-array>
+
 </resources>
+

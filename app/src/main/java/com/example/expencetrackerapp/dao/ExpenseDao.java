@@ -1,6 +1,7 @@
 package com.example.expencetrackerapp.dao;
 
 
+
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -11,8 +12,8 @@ import com.example.expencetrackerapp.models.Expense;
 
 import java.util.List;
 
-@Dao
-public interface ExpenseDao {
+    @Dao
+    public interface ExpenseDao {
     @Insert
     void insertExpense(Expense expense);
 
@@ -31,8 +32,15 @@ public interface ExpenseDao {
     @Query("SELECT * FROM expenses WHERE strftime('%m', date) = :month")
     LiveData<List<Expense>> getExpensesByMonth(String month);
 
+    @Query("SELECT * FROM expenses WHERE year = :year")
+    LiveData<List<Expense>> getExpensesByYear(String year);
+
+    @Query("SELECT * FROM expenses WHERE strftime('%m', date) = :month AND strftime('%Y', date) = :year")
+    LiveData<List<Expense>> getExpensesByMonthAndYear(String month, String year);
+
     @Query("SELECT * FROM expenses WHERE category = :postions")
     LiveData<List<Expense>> getSpecifityExpenses(String postions);
 
-
+        @Query("SELECT SUM(amount) FROM expenses WHERE category = :category")
+        LiveData<Double> getTotalExpensesByCategory(String category);
 }

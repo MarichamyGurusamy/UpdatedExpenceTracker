@@ -16,10 +16,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.expencetrackerapp.R;
 import com.example.expencetrackerapp.adapters.ExpenseAdapter;
+import com.example.expencetrackerapp.database.BudgetsDatabase;
+import com.example.expencetrackerapp.models.Budget;
 import com.example.expencetrackerapp.models.Expense;
 import com.example.expencetrackerapp.database.ExpenseDatabase;
 import com.example.expencetrackerapp.databinding.ActivityExpenceListBinding;
 import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
+import com.example.expencetrackerapp.viewmodel.BudgetViewModel;
 import com.example.expencetrackerapp.viewmodel.ExpenseViewModel;
 
 import java.util.ArrayList;
@@ -36,8 +39,13 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
     ExpenseViewModel expenseViewModel;
 
+    BudgetViewModel budgetViewModel;
+
     String specifyItem;
 
+    double totalAmount = 0;
+
+    BudgetsDatabase budgetsDatabase;
 
 
     @Override
@@ -60,6 +68,10 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
         ViewModelProvider provider = new ViewModelProvider(getActivity());
 
         expenseViewModel = provider.get(ExpenseViewModel.class);
+
+        budgetViewModel = provider.get(BudgetViewModel.class);
+
+        budgetsDatabase  = BudgetsDatabase.getDatabase(getContext());
 
 
 
@@ -92,27 +104,27 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
 
         textTitleShopping.setOnClickListener(v -> {
-            SelectedDate("Shopping");
+            SelectedDate("Shopping",1);
             dialog.dismiss();
         });
         textTitleGrocery.setOnClickListener(v -> {
-            SelectedDate("Groceries");
+            SelectedDate("Groceries",2);
             dialog.dismiss();
         });
         textTitleFood.setOnClickListener(v -> {
-            SelectedDate("Food");
+            SelectedDate("Food",3);
             dialog.dismiss();
         });
         textTitleMicsc.setOnClickListener(v -> {
-            SelectedDate("Micscellaneous");
+            SelectedDate("Micscellaneous",4);
             dialog.dismiss();
         });
         textTitleTravel.setOnClickListener(v -> {
-            SelectedDate("Transport");
+            SelectedDate("Transport",5);
             dialog.dismiss();
         });
         textTitleEducation.setOnClickListener(v -> {
-            SelectedDate("Education");
+            SelectedDate("Education",6);
             dialog.dismiss();
         });
 
@@ -121,7 +133,7 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
         dialog.show();
     }
 
-    private void SelectedDate(String postions) {
+    private void SelectedDate(String postions,int itemPosition) {
 
         this.specifyItem = postions;
 
@@ -130,21 +142,37 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
         }
 
 
+
+
         expenseViewModel.getSpecifityExpenses(postions).observe(getActivity(), notes -> {
             if (notes != null) {
                 this.expenseList = (ArrayList<Expense>) notes;
-                double totalAmount = 0;
                 for (Expense expense : notes) {
                     totalAmount += expense.getAmount();
                 }
                 binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
                 loadExpenses(expenseList);
+                specifyBudgetItem(itemPosition,totalAmount,postions);
+
 
             }
         });
 
 
     }
+
+    private void specifyBudgetItem(int itemPosition, double totalAmount, String postions) {
+
+        Budget budget = new Budget(itemPosition,totalAmount,postions);
+
+        BudgetsDatabase.databaseWriteExecutor.execute(() -> {
+            budgetsDatabase.budgetDao().insertBudget(budget);
+
+        });
+        
+
+    }
+
 
     private void loadExpenses(ArrayList<Expense> expenseList) {
 

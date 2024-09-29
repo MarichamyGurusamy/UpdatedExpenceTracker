@@ -48,13 +48,15 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
     ExpenseAdapter expenseAdapter;
 
     String selectedMonth = "Current Month";
+    String selectedYear = "Current Year";
 
     ArrayList<Expense> expenses = new ArrayList<>();
 
     ArrayList<Expense> monthExpenses  = new ArrayList<>();
+    ArrayList<Expense> yearExpenses  = new ArrayList<>();
 
     Map<String, String> monthMap  = new HashMap<>();
-
+    Map<String, String> yearMap  = new HashMap<>();
     String selectedItem ;
 
     String cageNamePostions;
@@ -86,6 +88,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+
         binding = ActivityExpenceListBinding.inflate(inflater, container, false);
 
         communicator.navigateBottomFrag(3, true);
@@ -94,7 +97,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
         expenseViewModel = provider.get(ExpenseViewModel.class);
 
-        expenseDatabase = ExpenseDatabase.getDatabase(getContext()); // Use the singleton pattern
+        expenseDatabase  = ExpenseDatabase.getDatabase(getContext()); // Use the singleton pattern
 
         expenseViewModel.getAllNotes().observe(getActivity(), notes -> {
             if (notes != null) {
@@ -109,7 +112,6 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
             }
         });
-
 
         // Set up Spinner month mapping
         monthMap = new HashMap<>();
@@ -155,6 +157,35 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
             }
         });
 
+        yearMap = new HashMap<>();
+        yearMap.put("Year", "00");
+        yearMap.put("2023", "01");
+        yearMap.put("2024", "02");
+        yearMap.put("2025", "03");
+        yearMap.put("2026", "03");
+
+        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getContext(), R.array.years_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.yearFilter.setAdapter(adapter1);
+        binding.yearFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedYear = parent.getItemAtPosition(position).toString();
+                String yearNumber = yearMap.get(selectedYear);
+                if (!yearNumber.equals("00")) {
+                    slecteParticiluarYear(yearNumber);
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+
+        });
+
+
         binding.addTaskFABtn.setOnClickListener(v -> showExpenseDialog(true));
 
         binding.backAll.setOnClickListener(v -> {});
@@ -187,6 +218,44 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
             }
         });
     }
+
+    private void slecteParticiluarYear(String yearNumber) {
+
+
+        Log.d("TAG" ," loadDate >>> 4 " + yearNumber);
+
+        expenseViewModel.getExpensesByMonthAndYear(selectedMonth, yearNumber).observe(getActivity(), notes -> {
+
+            Log.d("TAG" ," loadDate >>> 5 " + notes);
+
+            if (notes != null) {
+                this.yearExpenses = (ArrayList<Expense>) notes;
+                double totalAmount = 0;
+                for (Expense expense : notes) {
+                    totalAmount += expense.getAmount();
+                }
+                binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+
+                Log.d("TAG" ," loadDate >>> 2 " + yearExpenses);
+
+                loadExpenses(yearExpenses);
+
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void loadExpenses(ArrayList<Expense> expenses) {
 

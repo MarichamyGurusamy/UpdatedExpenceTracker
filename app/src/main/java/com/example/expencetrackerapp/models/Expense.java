@@ -17,6 +17,15 @@ public class Expense implements Parcelable {
     private String category;
     private String bankName;
 
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    private String year;
     // Constructors
     public Expense(int id ,String recipient, double amount, String date, String category, String bankName) {
         this.id = id;

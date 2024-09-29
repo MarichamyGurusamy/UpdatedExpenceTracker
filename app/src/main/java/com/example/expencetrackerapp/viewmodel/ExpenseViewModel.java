@@ -1,5 +1,6 @@
 package com.example.expencetrackerapp.viewmodel;
 
+
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -14,8 +15,7 @@ import com.example.expencetrackerapp.repository.AllDetailsRepository;
 import java.util.List;
 
 public class ExpenseViewModel extends AndroidViewModel {
-
-    final AllDetailsRepository repository;
+    private final AllDetailsRepository repository;
 
     public ExpenseViewModel(@NonNull Application application) {
         super(application);
@@ -24,19 +24,27 @@ public class ExpenseViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Expense>> getAllNotes() {
-       return repository.getAllNotes();
+        return repository.getAllNotes();
     }
 
     public LiveData<List<Expense>> getExpensesByMonth(String monthNumber) {
-       return repository.getExpensesByMonth(monthNumber);
+        return repository.getExpensesByMonth(monthNumber);
+    }
+
+    public LiveData<List<Expense>> getExpensesByYear(String year) {
+        return repository.getExpensesByYear(year);
+    }
+
+    public LiveData<List<Expense>> getExpensesByMonthAndYear(String month, String year) {
+        return repository.getExpensesByMonthAndYear(month, year);
     }
 
     public void insert(Expense expense) {
-            repository.insert(expense);
+        repository.insert(expense);
     }
 
     public void update(Expense expense) {
-            repository.update(expense);
+        repository.update(expense);
     }
 
     public void deleteItme(int id) {
@@ -46,5 +54,6 @@ public class ExpenseViewModel extends AndroidViewModel {
     public LiveData<List<Expense>> getSpecifityExpenses(String postions) {
         return repository.getSpecifityExpenses(postions);
     }
+
 
 }

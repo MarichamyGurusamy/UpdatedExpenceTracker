@@ -1,5 +1,7 @@
 package com.example.expencetrackerapp.repository;
 
+
+
 import androidx.lifecycle.LiveData;
 
 import com.example.expencetrackerapp.dao.ExpenseDao;
@@ -8,7 +10,6 @@ import com.example.expencetrackerapp.models.Expense;
 import java.util.List;
 
 public class AllDetailsRepository {
-
     private final ExpenseDao expenseDao;
 
     public AllDetailsRepository(ExpenseDao expenseDao) {
@@ -19,8 +20,16 @@ public class AllDetailsRepository {
         return expenseDao.getAllExpenses();
     }
 
-    public LiveData<List<Expense>> getExpensesByMonth(String monthNumber) {
-        return expenseDao.getExpensesByMonth(monthNumber);
+    public LiveData<List<Expense>> getExpensesByMonth(String month) {
+        return expenseDao.getExpensesByMonth(month);
+    }
+
+    public LiveData<List<Expense>> getExpensesByYear(String year) {
+        return expenseDao.getExpensesByYear(year);
+    }
+
+    public LiveData<List<Expense>> getExpensesByMonthAndYear(String month, String year) {
+        return expenseDao.getExpensesByMonthAndYear(month, year);
     }
 
     public void insert(Expense expense) {
@@ -35,9 +44,7 @@ public class AllDetailsRepository {
         expenseDao.deleteExpense(id);
     }
 
-
     public LiveData<List<Expense>> getSpecifityExpenses(String postions) {
         return expenseDao.getSpecifityExpenses(postions);
     }
-
 }
