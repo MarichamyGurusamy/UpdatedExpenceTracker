@@ -43,7 +43,7 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
     String specifyItem;
 
-    double totalAmount = 0;
+    int totalAmount = 0;
 
     BudgetsDatabase budgetsDatabase;
 
@@ -161,7 +161,7 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
     }
 
-    private void specifyBudgetItem(int itemPosition, double totalAmount, String postions) {
+    private void specifyBudgetItem(int itemPosition, int totalAmount, String postions) {
 
         Budget budget = new Budget(itemPosition,totalAmount,postions);
 

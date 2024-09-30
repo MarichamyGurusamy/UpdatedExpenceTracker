@@ -23,6 +23,7 @@ import com.example.expencetrackerapp.databinding.BudgetActivityBinding;
 import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
 import com.example.expencetrackerapp.models.Budget;
 import com.example.expencetrackerapp.models.BudgetCategory;
+import com.example.expencetrackerapp.models.BudgetTotal;
 import com.example.expencetrackerapp.viewmodel.BudgetCategoryViewModel;
 import com.example.expencetrackerapp.viewmodel.BudgetViewModel;
 
@@ -33,18 +34,18 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
 
     private FragmentBottomNavigation communicator;
     private BudgetActivityBinding binding;
-    private BudgetViewModel budgetViewModel;
-    private BudgetCategoryViewModel budgetCategoryViewModel;
     BudgetCategoryAdapter budgetCategoryAdapter;
     ArrayList<Budget> budgets = new ArrayList<>();
-    List<BudgetCategory> budgetCategories = new ArrayList<>();
-    List<Budget> budget = new ArrayList<>();
-    ArrayList<BudgetViewModel> expenseList = new ArrayList<>();
+    ArrayList<BudgetCategory> budgetCategories = new ArrayList<>();
 
-    String specifyItem = "";
+    String specifyItem = "" ,specifyItemName = "" ,specifyItemNameCat = "";
     BudgetCategoryDatabase budgetCategoryDatabase;
-    double amount, previousAmount;
-    int deleteItem;
+    int amount;
+    int previousAmount;
+    int budgetId,budgetIdCat;
+
+    double totalBudgetCategoryAmount = 0.0;
+    double totalBudgetAmount = 0.0;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -57,10 +58,10 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
     }
 
     private void newCreateTodo() {
-        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View dialogView = inflater.inflate(R.layout.budget_category_popup_item, null);
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(requireActivity());
         dialogBuilder.setView(dialogView);
         AlertDialog dialog = dialogBuilder.create();
 
@@ -75,49 +76,49 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
 
         textTitleShopping.setOnClickListener(v -> {
             if (budgetCategories.isEmpty()){
-                SelectedDate("Shopping",1, dialogView , 0);
+                SelectedDate("Shopping",1, 0);
             } else {
-                SelectedDate("Shopping",1, dialogView , 1);
+                SelectedDate("Shopping",1, 1);
             }
             dialog.dismiss();
         });
         textTitleGrocery.setOnClickListener(v -> {
             if (budgetCategories.isEmpty()) {
-                SelectedDate("Groceries", 2, dialogView, 0);
+                SelectedDate("Groceries", 2, 0);
             }else {
-                SelectedDate("Groceries", 2, dialogView, 1);
+                SelectedDate("Groceries", 2, 1);
             }
             dialog.dismiss();
         });
         textTitleFood.setOnClickListener(v -> {
             if (budgetCategories.isEmpty()) {
-                SelectedDate("Food", 3, dialogView, 0);
+                SelectedDate("Food", 3, 0);
             }else {
-                SelectedDate("Food", 3, dialogView, 1);
+                SelectedDate("Food", 3, 1);
             }
             dialog.dismiss();
         });
         textTitleMicsc.setOnClickListener(v -> {
             if (budgetCategories.isEmpty()) {
-                SelectedDate("Micscellaneous", 4, dialogView, 0);
+                SelectedDate("Micscellaneous", 4, 0);
             } else {
-                SelectedDate("Micscellaneous", 4, dialogView, 1);
+                SelectedDate("Micscellaneous", 4, 1);
             }
             dialog.dismiss();
         });
         textTitleTravel.setOnClickListener(v -> {
             if (budgetCategories.isEmpty()) {
-                SelectedDate("Transport", 5, dialogView, 0);
+                SelectedDate("Transport", 5, 0);
             } else{
-                SelectedDate("Transport", 5, dialogView, 1);
+                SelectedDate("Transport", 5, 1);
             }
             dialog.dismiss();
         });
         textTitleEducation.setOnClickListener(v -> {
             if (budgetCategories.isEmpty()) {
-                SelectedDate("Education", 6, dialogView, 0);
+                SelectedDate("Education", 6, 0);
             } else {
-                SelectedDate("Education", 6, dialogView, 1);
+                SelectedDate("Education", 6, 1);
             }
             dialog.dismiss();
         });
@@ -125,13 +126,13 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
         dialog.show();
     }
 
-    private void SelectedDate(String shopping, int i, View dialogView, int amountPrv) {
+    private void SelectedDate(String shopping, int i, int amountPrv) {
 
         specifyItem=shopping + " " + "monthlyData";
 
 
         boolean isUpdate = (amountPrv == 1); // Assuming amountPrv is used to determine if it's an update
-        showAlertDialogButtonClicked(dialogView, specifyItem, i, shopping, amountPrv, isUpdate);
+        showAlertDialogButtonClicked(specifyItem, i, shopping, isUpdate);
 
     }
 
@@ -142,8 +143,8 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
         binding = BudgetActivityBinding.inflate(inflater, container, false);
 
         // Initialize ViewModels
-        budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
-        budgetCategoryViewModel = new ViewModelProvider(this).get(BudgetCategoryViewModel.class);
+        BudgetViewModel budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
+        BudgetCategoryViewModel budgetCategoryViewModel = new ViewModelProvider(this).get(BudgetCategoryViewModel.class);
 
         budgetCategoryDatabase  = BudgetCategoryDatabase.getDatabase(getContext());
         // Navigate to the bottom fragment if needed
@@ -151,12 +152,12 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
 
         binding.addTaskFABtn.setOnClickListener(v -> newCreateTodo());
 
-        budgetCategoryViewModel.getAllNotes().observe(getActivity(), notes -> {
+        budgetCategoryViewModel.getAllNotes().observe(requireActivity(), notes -> {
             if (notes.isEmpty()){
                 previousAmount = 0;
             }else {
                 Log.d("tag", "budgetCategoryViewModel"+notes.size());
-                this.budgetCategories = (ArrayList<BudgetCategory>)notes;
+                this.budgetCategories = (ArrayList<BudgetCategory>) notes;
 
                 for (BudgetCategory budgetCategory : notes) {
                     previousAmount = budgetCategory.getBudgetAmount();
@@ -164,27 +165,55 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
                 loadBudgets(budgetCategories);
 
             }});
-            budgetViewModel.getAllNotes1().observe(getActivity(), notes -> {
+            budgetViewModel.getAllNotes1().observe(requireActivity(), notes -> {
                 if (notes.isEmpty()){
                     previousAmount = 0;
                 }else {
                     Log.d("tag", "budgetCategoryViewModel"+notes.size());
-                    this.budget = (ArrayList<Budget>)notes;
+                    this.budgets = (ArrayList<Budget>) notes;
 
-                    for (Budget budget : notes) {
-
-                    }
 
 
                 }
         });
 
+
+        for (BudgetCategory budgetCategory : budgetCategories) {
+            switch (budgetCategory.getCategoryName()) {
+                case "Shopping", "Groceries", "Food", "Transport", "Education", "Micscellaneous" -> {
+                    totalBudgetCategoryAmount += budgetCategory.getBudgetAmount();
+                    specifyItemNameCat = budgetCategory.getCategoryName();
+                    budgetIdCat = budgetCategory.getId();
+                }
+            }
+        }
+
+
+        for (Budget budget : budgets) {
+
+            switch (budget.getCategory()) {
+                case "Shopping", "Groceries", "Micscellaneous", "Education", "Transport", "Food" -> {
+                    totalBudgetAmount += budget.getAmount();
+                    specifyItemName = budget.getCategory();
+                    budgetId = budget.getId();
+                }
+            }
+
+        }
+
+        double totalSpendingAmount = totalBudgetCategoryAmount + totalBudgetAmount;
+
+//        BudgetTotal total = new BudgetTotal(totalSpendingAmount);
+//        budgetTotalViewModel.insert(total);
+
+        System.out.println("Total Spending Amount: " + totalSpendingAmount);
+
         return binding.getRoot();
     }
 
-    public void showAlertDialogButtonClicked(View view, String specifyItem, int postions, String itemPosition, int amountPrv, boolean isUpdate) {
+    public void showAlertDialogButtonClicked(String specifyItem, int postions, String itemPosition, boolean isUpdate) {
         // Create an alert builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setTitle(specifyItem);
         // set the custom layout
         final View customLayout = getLayoutInflater().inflate(R.layout.custom_layout, null);
@@ -204,33 +233,26 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
 
 
             if (!editText.getText().toString().trim().isEmpty() && previousAmount > 0) {
-                amount = Double.parseDouble(editText.getText().toString().trim());
+                amount = Integer.parseInt(editText.getText().toString().trim());
                 if (amount > 0) {
                     BudgetCategory budgetCategory = new BudgetCategory(postions, itemPosition, amount, 0);
 
-                    BudgetCategoryDatabase.databaseWriteExecutor.execute(() -> {
-                        budgetCategoryDatabase.budgetCategoryDao().insertBudgetCategory(budgetCategory);
-
-                    });
+                    BudgetCategoryDatabase.databaseWriteExecutor.execute(() -> budgetCategoryDatabase.budgetCategoryDao().insertBudgetCategory(budgetCategory));
                     dialog.dismiss();
                 }else if(!editText.getText().toString().trim().isEmpty()){
                     // Show a message if the amount is zero or negative
                     Toast.makeText(getContext(), "Please enter an amount greater than 0", Toast.LENGTH_SHORT).show();
-                    return;  // Exit the click listener, and do not close the dialog
+                    // Exit the click listener, and do not close the dialog
                 }
             }else if(editText.getText().toString().trim().isEmpty()) {
 
                 Toast.makeText(getContext(), "Please enter the amount", Toast.LENGTH_SHORT).show();
-                return ;
 
             }else {
-                amount = Double.parseDouble(editText.getText().toString().trim());
+                amount = Integer.parseInt(editText.getText().toString().trim());
                 BudgetCategory budgetCategory = new BudgetCategory(postions, itemPosition, amount, 0);
 
-                BudgetCategoryDatabase.databaseWriteExecutor.execute(() -> {
-                    budgetCategoryDatabase.budgetCategoryDao().insertBudgetCategory(budgetCategory);
-
-                });
+                BudgetCategoryDatabase.databaseWriteExecutor.execute(() -> budgetCategoryDatabase.budgetCategoryDao().insertBudgetCategory(budgetCategory));
             }
 
 
@@ -245,7 +267,7 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
 
     private void loadBudgets(List<BudgetCategory> budgetCategory) {
 
-        budgetCategoryAdapter = new BudgetCategoryAdapter(budgetCategory, (BudgetCategoryAdapter.OnExpenseClickListener) this); // Use the correct constructor
+        budgetCategoryAdapter = new BudgetCategoryAdapter(budgetCategory, this); // Use the correct constructor
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setAdapter(budgetCategoryAdapter);
 
@@ -260,26 +282,14 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
 
         previousAmount = budgetCategory.getBudgetAmount();
         specifyItem=budgetCategory.getCategoryName() + " " + "monthlyData";
-        if (budgetCategories == null){
-            showAlertDialogButtonClicked(v,specifyItem,budgetCategory.getId(),budgetCategory.getCategoryName(), 0, false);
-
-        } else {
-            showAlertDialogButtonClicked(v,specifyItem,budgetCategory.getId(),budgetCategory.getCategoryName(),1, true);
-
-        }
+        showAlertDialogButtonClicked(specifyItem,budgetCategory.getId(),budgetCategory.getCategoryName(), budgetCategories != null);
 
     }
 
     @Override
     public void onDeleteClick(BudgetCategory budgetCategory, View v) {
-        deleteItem = budgetCategory.getId();
-        previousAmount = 0;
-        BudgetCategoryDatabase.databaseWriteExecutor.execute(() -> {
-            budgetCategoryDatabase.budgetCategoryDao().deleteById(budgetCategory.getId());
 
-            // Update UI on main thread after insertion
-
-        });
+        BudgetCategoryDatabase.databaseWriteExecutor.execute(() -> budgetCategoryDatabase.budgetCategoryDao().deleteById(budgetCategory.getId()));
     }
 
 }

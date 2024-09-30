@@ -12,11 +12,11 @@ public class BudgetCategory implements Parcelable {
     @PrimaryKey
     private int id;
     private String categoryName;
-    private double budgetAmount;
-    private double spentAmount;
+    private int budgetAmount;
+    private int spentAmount;
 
     // Constructor
-    public BudgetCategory(int id, String categoryName, double budgetAmount, double spentAmount) {
+    public BudgetCategory(int id, String categoryName, int budgetAmount, int spentAmount) {
         this.id = id;
         this.categoryName = categoryName;
         this.budgetAmount = budgetAmount;
@@ -28,11 +28,11 @@ public class BudgetCategory implements Parcelable {
         return categoryName;
     }
 
-    public double getBudgetAmount() {
+    public int getBudgetAmount() {
         return budgetAmount;
     }
 
-    public double getSpentAmount() {
+    public int getSpentAmount() {
         return spentAmount;
     }
 
@@ -45,17 +45,17 @@ public class BudgetCategory implements Parcelable {
         this.categoryName = categoryName;
     }
 
-    public void setBudgetAmount(double budgetAmount) {
+    public void setBudgetAmount(int budgetAmount) {
         this.budgetAmount = budgetAmount;
     }
 
-    public void setSpentAmount(double spentAmount) {
+    public void setSpentAmount(int spentAmount) {
         this.spentAmount = spentAmount;
     }
 
 
     @Ignore
-    public BudgetCategory(String categoryName, double budgetAmount) {
+    public BudgetCategory(String categoryName, int budgetAmount) {
         this(0, categoryName, budgetAmount, 0); // Use default ID (0) and spentAmount (0)
     }
 
@@ -64,9 +64,9 @@ public class BudgetCategory implements Parcelable {
 
     public BudgetCategory(Parcel in) {
         id = in.readInt();
-        budgetAmount = in.readDouble();
+        budgetAmount = in.readInt();
         categoryName = in.readString();
-        spentAmount = in.readDouble();
+        spentAmount = in.readInt();
 
     }
 
@@ -90,9 +90,9 @@ public class BudgetCategory implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
-        dest.writeDouble(budgetAmount);
+        dest.writeInt(budgetAmount);
         dest.writeString(categoryName);
-        dest.writeDouble(spentAmount);
+        dest.writeInt(spentAmount);
     }
 
 
