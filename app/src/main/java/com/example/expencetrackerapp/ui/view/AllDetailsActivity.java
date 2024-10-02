@@ -2,6 +2,8 @@ package com.example.expencetrackerapp.ui.view;
 
 import android.os.Bundle;
 import android.view.View;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -30,6 +32,12 @@ public class AllDetailsActivity extends AppCompatActivity  implements FragmentNa
 
         getSupportFragmentManager().beginTransaction().add(R.id.frameLayout, new HomeFragment()).addToBackStack(null).commit();
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
 
     }
 

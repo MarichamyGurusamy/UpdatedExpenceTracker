@@ -25,11 +25,11 @@ package="com.example.expencetrackerapp">
         android:name=".ui.view.AllDetailsActivity"
         android:exported="false"/>
     <activity
-        android:name=".ui.view.MainActivity"
+        android:name=".ui.view.MobileNumberActivity"
         android:exported="false"/>
 
     <activity
-        android:name=".ui.view.MobileNumberActivity"
+        android:name=".ui.view.MainActivity"
         android:exported="true">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />

@@ -39,8 +39,8 @@ public class BudgetCategoryAdapter extends RecyclerView.Adapter<BudgetCategoryAd
         holder.categoryText.setText(budgetCategory.getCategoryName());  // Set the category name
         holder.spentAmount.setText(String.valueOf(budgetCategory.getBudgetAmount()));  // Set the total budget amount
         holder.reminderAmount.setText(String.valueOf(budgetCategory.getSpentAmount()));  // Set the spent amount
-        holder.reminderText.setText("Remaining: " + String.format("%.2f", budgetCategory.getBudgetAmount() - budgetCategory.getSpentAmount()));  // Calculate and set the remaining amount
-
+        //holder.reminderText.setText("Remaining: " + String.format("%.2f", budgetCategory.getBudgetAmount() - budgetCategory.getSpentAmount()));  // Calculate and set the remaining amount
+        holder.reminderText.setText("Remaining: " + String.format("%.2f", (double) budgetCategory.getBudgetAmount() - (double) budgetCategory.getSpentAmount()));
         // Set an appropriate icon if you have logic for it (you can implement getCategoryIconResId)
         holder.categoryIcon.setImageResource(getCategoryIconResId(budgetCategory.getCategoryName()));
 

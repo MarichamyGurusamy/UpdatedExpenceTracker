@@ -1,6 +1,7 @@
 package com.example.expencetrackerapp.ui.view;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ public class MobileNumberActivity extends AppCompatActivity {
         binding = OtpVerificationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
         // Set click listener for verifying the mobile number
         binding.etVerifyMobileNumber.setOnClickListener(v -> {
             // Fetch the mobile number from the EditText field
@@ -30,6 +32,7 @@ public class MobileNumberActivity extends AppCompatActivity {
                 Intent intent = new Intent(MobileNumberActivity.this, OTPVerifyActivity.class);
                 intent.putExtra("mobileNumber", mobileNumber);  // Pass mobile number to the next activity
                 startActivity(intent);
+                finish();
             } else {
                 // Show toast message if the mobile number is invalid
                 Toast.makeText(MobileNumberActivity.this, "Please enter a valid 10-digit mobile number", Toast.LENGTH_SHORT).show();

@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -95,6 +97,8 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
         ViewModelProvider provider = new ViewModelProvider(getActivity());
 
+        handleBackPress();
+
         expenseViewModel = provider.get(ExpenseViewModel.class);
 
         expenseDatabase  = ExpenseDatabase.getDatabase(getContext()); // Use the singleton pattern
@@ -112,6 +116,10 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
             }
         });
+
+
+
+
 
         // Set up Spinner month mapping
         monthMap = new HashMap<>();
@@ -194,6 +202,7 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
     }
 
+
     private void slecteParticiluarMonth(String monthNumber) {
 
 
@@ -262,10 +271,6 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
         expenseAdapter = new ExpenseAdapter( expenses, this); // Use the correct constructor
         binding.recyclerViewExpenses.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewExpenses.setAdapter(expenseAdapter);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-        // Set a custom drawable for the divider
-        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.divider));
-        binding.recyclerViewExpenses.addItemDecoration(dividerItemDecoration);
         expenseAdapter.notifyDataSetChanged();
 
     }
@@ -440,6 +445,24 @@ public class HomeFragment extends Fragment implements ExpenseAdapter.OnExpenseCl
 
         dialog.show();
     }
+
+
+    private void handleBackPress() {
+        // Callback will only be called when this fragment is visible
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Close the app when back is pressed
+                requireActivity().finish();
+            }
+        };
+
+        // Add the callback to the back press dispatcher
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+
+
 
 
 }

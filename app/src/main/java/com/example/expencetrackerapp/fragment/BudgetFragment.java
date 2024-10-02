@@ -19,16 +19,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.expencetrackerapp.R;
 import com.example.expencetrackerapp.adapters.BudgetCategoryAdapter;
 import com.example.expencetrackerapp.database.BudgetCategoryDatabase;
+import com.example.expencetrackerapp.database.BudgetsTotalDatabase;
 import com.example.expencetrackerapp.databinding.BudgetActivityBinding;
 import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
 import com.example.expencetrackerapp.models.Budget;
 import com.example.expencetrackerapp.models.BudgetCategory;
 import com.example.expencetrackerapp.models.BudgetTotal;
 import com.example.expencetrackerapp.viewmodel.BudgetCategoryViewModel;
+import com.example.expencetrackerapp.viewmodel.BudgetTotalViewModel;
 import com.example.expencetrackerapp.viewmodel.BudgetViewModel;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.OnExpenseClickListener {
 
@@ -37,15 +44,36 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
     BudgetCategoryAdapter budgetCategoryAdapter;
     ArrayList<Budget> budgets = new ArrayList<>();
     ArrayList<BudgetCategory> budgetCategories = new ArrayList<>();
-
+    Calendar calendar = Calendar.getInstance();
     String specifyItem = "" ,specifyItemName = "" ,specifyItemNameCat = "";
     BudgetCategoryDatabase budgetCategoryDatabase;
+    BudgetsTotalDatabase budgetsTotalDatabase;
     int amount;
     int previousAmount;
     int budgetId,budgetIdCat;
 
     double totalBudgetCategoryAmount = 0.0;
     double totalBudgetAmount = 0.0;
+
+    private TextView startDateTextView;
+    private TextView endDateTextView;
+
+    ArrayList<Integer> budgetIds = new ArrayList<>();
+    ArrayList<Double> budgetAmount = new ArrayList<>();
+    ArrayList<String> budgetName = new ArrayList<>();
+
+    ArrayList<Double> budgetSh = new ArrayList<>();
+    ArrayList<Double> budgetFd = new ArrayList<>();
+    ArrayList<Double> budgetEdu = new ArrayList<>();
+    ArrayList<Double> budgetTv = new ArrayList<>();
+    ArrayList<Double> budgetGro = new ArrayList<>();
+    ArrayList<Double> budgetMis= new ArrayList<>();
+
+
+
+    int budgetShCat,budgetFdCat,budgetGroCat,budgetEduCat,budgetMisCat,budgetTvCat = 0;
+    int budgetShs,budgetFds,budgetGros,budgetEdus,budgetMiss,budgetTvs = 0;
+
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -145,22 +173,41 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
         // Initialize ViewModels
         BudgetViewModel budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
         BudgetCategoryViewModel budgetCategoryViewModel = new ViewModelProvider(this).get(BudgetCategoryViewModel.class);
-
+        BudgetTotalViewModel budgetTotalViewModel = new ViewModelProvider(this).get(BudgetTotalViewModel.class);
         budgetCategoryDatabase  = BudgetCategoryDatabase.getDatabase(getContext());
+        budgetsTotalDatabase  = BudgetsTotalDatabase.getDatabase(getContext());
         // Navigate to the bottom fragment if needed
         communicator.navigateBottomFrag(3, true);
 
+        startDateTextView = binding.monthStartDate; // Replace with your binding variable if applicable
+        endDateTextView = binding.monthEndDate;
+
+
+        // Call to generate date ranges and set the TextViews
+        generateMonthlyDateRanges();
+        binding.monthStartDate.setOnClickListener(v -> navigateToPreviousMonth());
+        binding.monthEndDate.setOnClickListener(v -> navigateToNextMonth());
         binding.addTaskFABtn.setOnClickListener(v -> newCreateTodo());
 
         budgetCategoryViewModel.getAllNotes().observe(requireActivity(), notes -> {
             if (notes.isEmpty()){
                 previousAmount = 0;
             }else {
-                Log.d("tag", "budgetCategoryViewModel"+notes.size());
+                Log.d("tag", "budgetCategoryViewModel111"+notes.size());
                 this.budgetCategories = (ArrayList<BudgetCategory>) notes;
 
-                for (BudgetCategory budgetCategory : notes) {
-                    previousAmount = budgetCategory.getBudgetAmount();
+                for (BudgetCategory budgetCategory : budgetCategories) {
+
+                    switch (budgetCategory.getCategoryName()) {
+                        case "Shopping" -> budgetShCat = budgetCategory.getBudgetAmount();
+                        case "Groceries" -> budgetGroCat = budgetCategory.getBudgetAmount();
+                        case "Micscellaneous" -> budgetMisCat = budgetCategory.getBudgetAmount();
+                        case "Education" -> budgetEduCat = budgetCategory.getBudgetAmount();
+                        case "Transport" -> budgetTvCat = budgetCategory.getBudgetAmount();
+                        case "Food" -> budgetFdCat = budgetCategory.getBudgetAmount();
+                    }
+
+
                 }
                 loadBudgets(budgetCategories);
 
@@ -171,42 +218,35 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
                 }else {
                     Log.d("tag", "budgetCategoryViewModel"+notes.size());
                     this.budgets = (ArrayList<Budget>) notes;
+                    for (Budget budget : budgets) {
 
+                        switch (budget.getCategory()) {
+                            case "Shopping" -> budgetShs = budget.getAmount();
+                            case "Groceries" -> budgetGros = budget.getAmount();
+                            case "Micscellaneous" -> budgetMiss = budget.getAmount();
+                            case "Education" -> budgetEdus = budget.getAmount();
+                            case "Transport" -> budgetTvs = budget.getAmount();
+                            case "Food" -> budgetFds = budget.getAmount();
+                        }
+
+                    }
 
 
                 }
         });
 
-
-        for (BudgetCategory budgetCategory : budgetCategories) {
-            switch (budgetCategory.getCategoryName()) {
-                case "Shopping", "Groceries", "Food", "Transport", "Education", "Micscellaneous" -> {
-                    totalBudgetCategoryAmount += budgetCategory.getBudgetAmount();
-                    specifyItemNameCat = budgetCategory.getCategoryName();
-                    budgetIdCat = budgetCategory.getId();
-                }
-            }
-        }
+        double totalSpendingAmount = budgetShCat - budgetShs;
+        budgetSh.add(totalSpendingAmount);
 
 
-        for (Budget budget : budgets) {
+        Log.d("Tag","Total Spending Amount: " + budgetSh + " >>> " + totalSpendingAmount + " >>> " +budgetShCat );
 
-            switch (budget.getCategory()) {
-                case "Shopping", "Groceries", "Micscellaneous", "Education", "Transport", "Food" -> {
-                    totalBudgetAmount += budget.getAmount();
-                    specifyItemName = budget.getCategory();
-                    budgetId = budget.getId();
-                }
-            }
 
-        }
 
-        double totalSpendingAmount = totalBudgetCategoryAmount + totalBudgetAmount;
+       BudgetTotal total = new BudgetTotal(budgetId,totalSpendingAmount,specifyItemName);
+       BudgetsTotalDatabase.databaseWriteExecutor.execute(() -> budgetsTotalDatabase.budgetTotalDao().insert(total));
 
-//        BudgetTotal total = new BudgetTotal(totalSpendingAmount);
-//        budgetTotalViewModel.insert(total);
 
-        System.out.println("Total Spending Amount: " + totalSpendingAmount);
 
         return binding.getRoot();
     }
@@ -290,6 +330,77 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
     public void onDeleteClick(BudgetCategory budgetCategory, View v) {
 
         BudgetCategoryDatabase.databaseWriteExecutor.execute(() -> budgetCategoryDatabase.budgetCategoryDao().deleteById(budgetCategory.getId()));
+    }
+
+    private void generateMonthlyDateRanges() {
+        List<String[]> dateRanges = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+
+        // Set the start date to October 1, 2024
+        calendar.set(2024, Calendar.OCTOBER, 1); // Month is 0-indexed
+
+        // Generate date ranges for 12 months
+        for (int i = 0; i < 12; i++) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            String startDate = dateFormat.format(calendar.getTime());
+
+            // Move to the last day of the month
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+            String endDate = dateFormat.format(calendar.getTime());
+
+            // Store the date range
+            dateRanges.add(new String[]{startDate, endDate});
+
+            // Move to the first day of the next month
+            calendar.add(Calendar.MONTH, 1);
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        // Output the date ranges for testing
+        for (String[] range : dateRanges) {
+            System.out.println("Start: " + range[0] + ", End: " + range[1]);
+        }
+
+        // Set the start and end dates for the current month (for display)
+        if (!dateRanges.isEmpty()) {
+            String[] currentRange = dateRanges.get(0); // Assuming you want to display the first month
+            startDateTextView.setText( currentRange[0]);
+            endDateTextView.setText(currentRange[1]);
+        }
+    }
+
+
+    private void navigateToPreviousMonth() {
+        // Move the calendar one month back
+        calendar.add(Calendar.MONTH, -1);
+        updateMonthlyDateRanges();
+    }
+
+    private void navigateToNextMonth() {
+        // Move the calendar one month forward
+        calendar.add(Calendar.MONTH, 1);
+        updateMonthlyDateRanges();
+    }
+
+    private void updateMonthlyDateRanges() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+
+        // Get the start date (first day of the current month)
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        String startDate = dateFormat.format(calendar.getTime());
+
+        // Get the end date (last day of the current month)
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        String endDate = dateFormat.format(calendar.getTime());
+
+        // Update the TextViews with the start and end dates
+        startDateTextView.setText(startDate);
+        endDateTextView.setText(endDate);
+        LocalDate currentDate = LocalDate.now();
+        int currentMonth = currentDate.getMonthValue(); // 1 to 12
+        String monthName = currentDate.getMonth().name();
+
+        Log.d("Current Month", "Month: " + currentMonth + " (" + monthName + ")");
     }
 
 }

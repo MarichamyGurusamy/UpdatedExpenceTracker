@@ -13,6 +13,7 @@ public class Budget implements Parcelable {
     private String category;
     private int amount;
 
+
     // Getters and Setters
 
     public int getId() {

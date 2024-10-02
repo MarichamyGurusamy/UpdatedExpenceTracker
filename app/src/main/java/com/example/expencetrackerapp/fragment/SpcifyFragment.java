@@ -150,7 +150,8 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
                 for (Expense expense : notes) {
                     totalAmount += expense.getAmount();
                 }
-                binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+                //binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+                binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", (double) totalAmount));
                 loadExpenses(expenseList);
                 specifyBudgetItem(itemPosition,totalAmount,postions);
 

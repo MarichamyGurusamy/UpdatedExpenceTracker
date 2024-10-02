@@ -11,8 +11,8 @@ public class BudgetTotal {
     private double totalAmount;
 
     // Constructor
-    public BudgetTotal(double totalAmount,String name) {
-
+    public BudgetTotal(int id,double totalAmount,String name) {
+        this.id=id;
         this.totalAmount = totalAmount;
         this.name = name;
 
