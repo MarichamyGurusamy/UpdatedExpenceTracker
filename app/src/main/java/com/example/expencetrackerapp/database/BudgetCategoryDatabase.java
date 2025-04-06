@@ -14,7 +14,7 @@ import com.example.expencetrackerapp.models.BudgetCategory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {BudgetCategory.class}, version = 4, exportSchema = false)
+@Database(entities = {BudgetCategory.class}, version = 5, exportSchema = false)
 public abstract class BudgetCategoryDatabase extends RoomDatabase {
 
     public abstract BudgetCategoryDao budgetCategoryDao(); // Add this line

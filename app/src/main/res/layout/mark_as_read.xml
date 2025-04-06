@@ -9,10 +9,10 @@
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:text=""
+        android:text="Chaning billing Status"
         android:textColor="@color/black"
         android:gravity="center"
-        android:textSize="18sp"
+        android:textSize="15sp"
         android:textStyle="bold">
 
     </TextView>
@@ -20,10 +20,10 @@
     <TextView
         android:id="@+id/amount"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="38dp"
         android:textColor="@color/black"
         android:gravity="center"
-        android:textSize="18sp"
+        android:textSize="15sp"
         android:textStyle="bold">
 
     </TextView>
@@ -37,22 +37,25 @@
 
         <Button
             android:id="@+id/button_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="110dp"
+            android:layout_height="50dp"
             android:layout_alignParentStart="true"
             android:text="Cancel"
+            android:gravity="center"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/button_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="110dp"
+            android:layout_height="50dp"
             android:layout_alignParentEnd="true"
-            android:text="MARk AS PAID"
+            android:gravity="center"
+            android:text="MARK AS PAID"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:background="@color/colorAccent"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
     </RelativeLayout>

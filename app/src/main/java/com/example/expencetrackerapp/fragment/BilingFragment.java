@@ -110,8 +110,8 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         // Set a custom drawable for the divider
-        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.divider));
-        binding.recyclerViewExpenses2.addItemDecoration(dividerItemDecoration);
+//        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.divider));
+//        binding.recyclerViewExpenses2.addItemDecoration(dividerItemDecoration);
 
             billingAdapter.notifyDataSetChanged();
 
@@ -249,12 +249,12 @@ public class BilingFragment extends Fragment implements  BillingsAdapter.OnItemC
         editTextAmount.setText(billing.getAmount());
 
         if (billing.isMarkAsRead()){
-            editTextOk.setText("MARK AS PAID");
-            editTextOk.setBackground(getActivity().getResources().getDrawable(R.color.blue));
-
-        }else {
             editTextOk.setText("MARK AS UNPAID");
             editTextOk.setBackground(getActivity().getResources().getDrawable(R.color.light_red));
+
+        }else {
+            editTextOk.setText("MARK AS PAID");
+            editTextOk.setBackground(getActivity().getResources().getDrawable(R.color.colorAccent));
 
         }
 

@@ -22,7 +22,7 @@
         android:id="@+id/reminderAmount"
         android:layout_width="96dp"
         android:layout_height="19dp"
-        android:layout_marginStart="200dp"
+        android:layout_marginStart="168dp"
         android:gravity="center"
         android:textColor="@color/black"
         android:textSize="16sp"
@@ -36,24 +36,23 @@
         android:id="@+id/spentAmount"
         android:layout_width="100dp"
         android:layout_height="21dp"
-        android:layout_marginStart="200dp"
+        android:layout_marginStart="164dp"
         android:gravity="center"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/category_icon"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/reminderText"
         android:layout_width="143dp"
         android:layout_height="19dp"
         android:gravity="center"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@android:color/black"
 
 
-        android:textSize="14sp"
+        android:textSize="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.275"
@@ -75,13 +74,13 @@
 
     <ImageView
         android:id="@+id/budgetItemDelete"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="20dp"
+        android:layout_height="40dp"
         android:src="@drawable/delete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.724" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

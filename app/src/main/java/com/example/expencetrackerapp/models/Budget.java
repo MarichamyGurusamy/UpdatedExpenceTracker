@@ -11,7 +11,17 @@ public class Budget implements Parcelable {
     @PrimaryKey
     private int id;
     private String category;
-    private int amount;
+    private double amount;
+
+    public double getCatAmount() {
+        return catAmount;
+    }
+
+    public void setCatAmount(double catAmount) {
+        this.catAmount = catAmount;
+    }
+
+    private double catAmount;
 
 
     // Getters and Setters
@@ -32,19 +42,25 @@ public class Budget implements Parcelable {
         this.category = category;
     }
 
-    public int getAmount() {
+    public double getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(double amount) {
         this.amount = amount;
     }
 
 
-    public Budget(int id , int amount, String category) {
+    public Budget(){
+
+    }
+
+
+    public Budget(int id , double amount, String category) {
         this.id = id;
         this.amount = amount;
         this.category = category;
+        //this.catAmount=catAmount;
     }
 
 
@@ -55,8 +71,9 @@ public class Budget implements Parcelable {
 
     protected Budget(Parcel in) {
         id = in.readInt();
-        amount = in.readInt();
+        amount = in.readDouble();
         category = in.readString();
+        catAmount = in.readDouble();
     }
 
     public static final Creator<Budget> CREATOR = new Creator<Budget>() {
@@ -79,8 +96,9 @@ public class Budget implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
-        dest.writeInt(amount);
+        dest.writeDouble(amount);
         dest.writeString(category);
+        dest.writeDouble(catAmount);
     }
 
 

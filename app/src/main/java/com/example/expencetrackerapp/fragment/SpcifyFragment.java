@@ -1,7 +1,11 @@
 package com.example.expencetrackerapp.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +31,7 @@ import com.example.expencetrackerapp.viewmodel.ExpenseViewModel;
 
 import java.util.ArrayList;
 
-public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpenseClickListener  {
+public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpenseClickListener {
 
     FragmentBottomNavigation communicator;
 
@@ -43,10 +47,11 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
     String specifyItem;
 
-    int totalAmount = 0;
 
     BudgetsDatabase budgetsDatabase;
 
+
+    String selectedMonth = " ";
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -57,6 +62,7 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
             throw new ClassCastException(context + " must implement FragmentToActivityCommunicator");
         }
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -67,19 +73,27 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
         ViewModelProvider provider = new ViewModelProvider(getActivity());
 
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+
+        selectedMonth = sharedPreferences.getString("selectedmonth",null);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("selectedmonth", selectedMonth);
+        editor.apply();
+
         expenseViewModel = provider.get(ExpenseViewModel.class);
 
         budgetViewModel = provider.get(BudgetViewModel.class);
 
-        budgetsDatabase  = BudgetsDatabase.getDatabase(getContext());
-
+        budgetsDatabase = BudgetsDatabase.getDatabase(getContext());
 
 
         binding.itemContents.setVisibility(View.VISIBLE);
+        binding.monthFilter.setVisibility(View.GONE);
+        binding.yearFilter.setVisibility(View.GONE);
 //        binding.recyclerViewExpenses.setVisibility(View.VISIBLE);
 
-            binding.toolbarTitle.setText("Speify Expenses");
-
+        binding.toolbarTitle.setText("Expense Details");
 
 
         binding.addTaskFABtn.setOnClickListener(v -> newCreateTodo());
@@ -104,56 +118,57 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
 
         textTitleShopping.setOnClickListener(v -> {
-            SelectedDate("Shopping",1);
+            SelectedDate("Shopping", 1);
             dialog.dismiss();
         });
         textTitleGrocery.setOnClickListener(v -> {
-            SelectedDate("Groceries",2);
+            SelectedDate("Groceries", 2);
             dialog.dismiss();
         });
         textTitleFood.setOnClickListener(v -> {
-            SelectedDate("Food",3);
+            SelectedDate("Food", 3);
             dialog.dismiss();
         });
         textTitleMicsc.setOnClickListener(v -> {
-            SelectedDate("Micscellaneous",4);
+            SelectedDate("Miscellaneous", 4);
             dialog.dismiss();
         });
         textTitleTravel.setOnClickListener(v -> {
-            SelectedDate("Transport",5);
+            SelectedDate("Transport", 5);
             dialog.dismiss();
         });
         textTitleEducation.setOnClickListener(v -> {
-            SelectedDate("Education",6);
+            SelectedDate("Education", 6);
             dialog.dismiss();
         });
-
 
 
         dialog.show();
     }
 
-    private void SelectedDate(String postions,int itemPosition) {
+    private void SelectedDate(String postions, int itemPosition) {
 
         this.specifyItem = postions;
 
-        if (specifyItem != null){
+        if (specifyItem != null) {
             binding.toolbarTitle.setText(" " + specifyItem + " " + "Expenses");
         }
 
 
-
-
         expenseViewModel.getSpecifityExpenses(postions).observe(getActivity(), notes -> {
+
             if (notes != null) {
                 this.expenseList = (ArrayList<Expense>) notes;
+                double totalAmount = 0.0;
                 for (Expense expense : notes) {
+
                     totalAmount += expense.getAmount();
+
                 }
-                //binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", totalAmount));
+
                 binding.totalAmount.setText(String.format("Total Amount: ₹%.2f", (double) totalAmount));
                 loadExpenses(expenseList);
-                specifyBudgetItem(itemPosition,totalAmount,postions);
+                specifyBudgetItem(itemPosition, (int) totalAmount, postions);
 
 
             }
@@ -164,13 +179,13 @@ public class SpcifyFragment extends Fragment implements ExpenseAdapter.OnExpense
 
     private void specifyBudgetItem(int itemPosition, int totalAmount, String postions) {
 
-        Budget budget = new Budget(itemPosition,totalAmount,postions);
+        Budget budget = new Budget(itemPosition, totalAmount, postions);
 
         BudgetsDatabase.databaseWriteExecutor.execute(() -> {
             budgetsDatabase.budgetDao().insertBudget(budget);
 
         });
-        
+
 
     }
 

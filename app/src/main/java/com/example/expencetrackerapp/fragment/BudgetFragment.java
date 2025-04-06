@@ -1,6 +1,11 @@
 package com.example.expencetrackerapp.fragment;
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,15 +24,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.expencetrackerapp.R;
 import com.example.expencetrackerapp.adapters.BudgetCategoryAdapter;
 import com.example.expencetrackerapp.database.BudgetCategoryDatabase;
+import com.example.expencetrackerapp.database.BudgetsDatabase;
 import com.example.expencetrackerapp.database.BudgetsTotalDatabase;
 import com.example.expencetrackerapp.databinding.BudgetActivityBinding;
 import com.example.expencetrackerapp.interfaces.FragmentBottomNavigation;
 import com.example.expencetrackerapp.models.Budget;
 import com.example.expencetrackerapp.models.BudgetCategory;
-import com.example.expencetrackerapp.models.BudgetTotal;
+import com.example.expencetrackerapp.models.Expense;
 import com.example.expencetrackerapp.viewmodel.BudgetCategoryViewModel;
 import com.example.expencetrackerapp.viewmodel.BudgetTotalViewModel;
 import com.example.expencetrackerapp.viewmodel.BudgetViewModel;
+import com.example.expencetrackerapp.viewmodel.ExpenseViewModel;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -36,27 +43,33 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.OnExpenseClickListener {
 
     private FragmentBottomNavigation communicator;
     private BudgetActivityBinding binding;
     BudgetCategoryAdapter budgetCategoryAdapter;
-    ArrayList<Budget> budgets = new ArrayList<>();
+    ArrayList<Expense> expenses = new ArrayList<>();
     ArrayList<BudgetCategory> budgetCategories = new ArrayList<>();
     Calendar calendar = Calendar.getInstance();
     String specifyItem = "" ,specifyItemName = "" ,specifyItemNameCat = "";
     BudgetCategoryDatabase budgetCategoryDatabase;
     BudgetsTotalDatabase budgetsTotalDatabase;
+    BudgetsDatabase budgetsDatabase;
+    ExpenseViewModel expenseViewModel;
     int amount;
-    int previousAmount;
+    double previousAmount = 0.0;
     int budgetId,budgetIdCat;
+
+    Map<String, String> monthMap  = new HashMap<>();
 
     double totalBudgetCategoryAmount = 0.0;
     double totalBudgetAmount = 0.0;
 
     private TextView startDateTextView;
     private TextView endDateTextView;
+
 
     ArrayList<Integer> budgetIds = new ArrayList<>();
     ArrayList<Double> budgetAmount = new ArrayList<>();
@@ -70,10 +83,34 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
     ArrayList<Double> budgetMis= new ArrayList<>();
 
 
+    double budgetShCat = 0.0;
+    double budgetGroCat = 0.0;
+    double budgetMisCat = 0.0;
+    double budgetEduCat = 0.0;
+    double budgetTvCat = 0.0;
+    double budgetFdCat = 0.0;
 
-    int budgetShCat,budgetFdCat,budgetGroCat,budgetEduCat,budgetMisCat,budgetTvCat = 0;
-    int budgetShs,budgetFds,budgetGros,budgetEdus,budgetMiss,budgetTvs = 0;
+    double budgetShs = 0.0;
+    double budgetGros = 0.0;
+    double budgetMiss = 0.0;
+    double budgetEdus = 0.0;
+    double budgetTvs = 0.0;
+    double budgetFds = 0.0;
 
+
+    double totalSpendingAmountSh;
+    double totalSpendingAmountFd;
+    double totalSpendingAmountTv;
+    double totalSpendingAmountMis;
+    double totalSpendingAmountEdu;
+    double totalSpendingAmountGro;
+//    int budgetShCat,budgetFdCat,budgetGroCat,budgetEduCat,budgetMisCat,budgetTvCat = 0;
+//    int budgetShs,budgetFds,budgetGros,budgetEdus,budgetMiss,budgetTvs = 0;
+
+    String isMonth = " ";
+    String selectedMonth = " ";
+
+    String monthNumber = " ";
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -128,9 +165,9 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
         });
         textTitleMicsc.setOnClickListener(v -> {
             if (budgetCategories.isEmpty()) {
-                SelectedDate("Micscellaneous", 4, 0);
+                SelectedDate("Miscellaneous", 4, 0);
             } else {
-                SelectedDate("Micscellaneous", 4, 1);
+                SelectedDate("Miscellaneous", 4, 1);
             }
             dialog.dismiss();
         });
@@ -156,7 +193,7 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
 
     private void SelectedDate(String shopping, int i, int amountPrv) {
 
-        specifyItem=shopping + " " + "monthlyData";
+        specifyItem=shopping + " " + "Budget Amount";
 
 
         boolean isUpdate = (amountPrv == 1); // Assuming amountPrv is used to determine if it's an update
@@ -170,12 +207,38 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = BudgetActivityBinding.inflate(inflater, container, false);
 
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+
+
+        // Retrieve the boolean value (default is false if not set)
+        isMonth = sharedPreferences.getString("monthnumber",null);
+
+        selectedMonth = sharedPreferences.getString("selectedmonth",null);
+
+       // monthNumber = monthMap.get(selectedMonth);
+
+        if (selectedMonth != null && selectedMonth.equals("October")) {
+            monthNumber = "10";
+        }
+
+        Log.d("TAG", "Total Spending Amount Shopping 111 " + monthNumber + selectedMonth );
+//        SharedPreferences sharedPreferences1 = getActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+//
+//        SharedPreferences.Editor editor = sharedPreferences1.edit();
+//
+//        editor.putString("monthnumber", isMonth);
+//
+//        editor.putString("selectedmonth", selectedMonth);
+//
+//        editor.apply();
         // Initialize ViewModels
         BudgetViewModel budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
         BudgetCategoryViewModel budgetCategoryViewModel = new ViewModelProvider(this).get(BudgetCategoryViewModel.class);
         BudgetTotalViewModel budgetTotalViewModel = new ViewModelProvider(this).get(BudgetTotalViewModel.class);
+        ExpenseViewModel expenseViewModel1 = new ViewModelProvider(this).get(ExpenseViewModel.class);
         budgetCategoryDatabase  = BudgetCategoryDatabase.getDatabase(getContext());
         budgetsTotalDatabase  = BudgetsTotalDatabase.getDatabase(getContext());
+        budgetsDatabase  = BudgetsDatabase.getDatabase(getContext());
         // Navigate to the bottom fragment if needed
         communicator.navigateBottomFrag(3, true);
 
@@ -189,67 +252,87 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
         binding.monthEndDate.setOnClickListener(v -> navigateToNextMonth());
         binding.addTaskFABtn.setOnClickListener(v -> newCreateTodo());
 
-        budgetCategoryViewModel.getAllNotes().observe(requireActivity(), notes -> {
-            if (notes.isEmpty()){
-                previousAmount = 0;
-            }else {
-                Log.d("tag", "budgetCategoryViewModel111"+notes.size());
-                this.budgetCategories = (ArrayList<BudgetCategory>) notes;
-
-                for (BudgetCategory budgetCategory : budgetCategories) {
-
-                    switch (budgetCategory.getCategoryName()) {
-                        case "Shopping" -> budgetShCat = budgetCategory.getBudgetAmount();
-                        case "Groceries" -> budgetGroCat = budgetCategory.getBudgetAmount();
-                        case "Micscellaneous" -> budgetMisCat = budgetCategory.getBudgetAmount();
-                        case "Education" -> budgetEduCat = budgetCategory.getBudgetAmount();
-                        case "Transport" -> budgetTvCat = budgetCategory.getBudgetAmount();
-                        case "Food" -> budgetFdCat = budgetCategory.getBudgetAmount();
-                    }
+       // if (selectedMonth != null) {
 
 
-                }
-                loadBudgets(budgetCategories);
-
-            }});
-            budgetViewModel.getAllNotes1().observe(requireActivity(), notes -> {
-                if (notes.isEmpty()){
+            expenseViewModel1.getAllNotes().observe(requireActivity(), notes -> {
+                if (notes.isEmpty()) {
                     previousAmount = 0;
-                }else {
-                    Log.d("tag", "budgetCategoryViewModel"+notes.size());
-                    this.budgets = (ArrayList<Budget>) notes;
-                    for (Budget budget : budgets) {
+                } else {
+                    Log.d("tag", "budgetCategoryViewModel" + notes.size());
+                    this.expenses = (ArrayList<Expense>) notes;
 
-                        switch (budget.getCategory()) {
-                            case "Shopping" -> budgetShs = budget.getAmount();
-                            case "Groceries" -> budgetGros = budget.getAmount();
-                            case "Micscellaneous" -> budgetMiss = budget.getAmount();
-                            case "Education" -> budgetEdus = budget.getAmount();
-                            case "Transport" -> budgetTvs = budget.getAmount();
-                            case "Food" -> budgetFds = budget.getAmount();
+                    //calculateTotalSpending(this.budgetCategories);
+                    for (Expense expenses : expenses) {
+
+                        switch (expenses.getCategory()) {
+                            case "Shopping" -> this.budgetShs += expenses.getAmount();
+                            case "Groceries" -> this.budgetGros += expenses.getAmount();
+                            case "Miscellaneous" -> this.budgetMiss += expenses.getAmount();
+                            case "Education" -> this.budgetEdus += expenses.getAmount();
+                            case "Transport" -> this.budgetTvs += expenses.getAmount();
+                            case "Food" -> this.budgetFds += expenses.getAmount();
                         }
 
                     }
 
 
+
                 }
+
+
+            });
+      //  }
+
+        budgetCategoryViewModel.getAllNotes().observe(requireActivity(), notes -> {
+            if (notes.isEmpty()) {
+                previousAmount = 0;
+            } else {
+                this.budgetCategories = (ArrayList<BudgetCategory>) notes;
+
+                // Calculate amounts after a 5-second delay
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    for (BudgetCategory budgetCategory : budgetCategories) {
+                        switch (budgetCategory.getCategoryName()) {
+                            case "Shopping" -> this.budgetShCat = budgetCategory.getBudgetAmount();
+                            case "Groceries" -> this.budgetGroCat = budgetCategory.getBudgetAmount();
+                            case "Miscellaneous" -> this.budgetMisCat = budgetCategory.getBudgetAmount();
+                            case "Education" -> this.budgetEduCat = budgetCategory.getBudgetAmount();
+                            case "Transport" -> this.budgetTvCat = budgetCategory.getBudgetAmount();
+                            case "Food" -> this.budgetFdCat = budgetCategory.getBudgetAmount();
+                        }
+                    }
+
+                    // Calculate total spending amounts
+                    this.totalSpendingAmountSh = budgetShCat - budgetShs;
+                    this.totalSpendingAmountFd = budgetFdCat - budgetFds;
+                    this.totalSpendingAmountEdu = budgetEduCat - budgetEdus;
+                    this.totalSpendingAmountGro = budgetGroCat - budgetGros;
+                    this.totalSpendingAmountMis = budgetMisCat - budgetMiss; // not working
+                    this.totalSpendingAmountTv = budgetTvCat - budgetTvs;
+
+                    // Logging the values after delay
+                    Log.d("Tag", "Total Spending Amount Shopping " + " >>> " + totalSpendingAmountSh + " >>> " + budgetShCat + " >>> " + budgetShs);
+                    Log.d("Tag", "Total Spending Amount Food: " + " >>> " + totalSpendingAmountFd + " >>> ");
+                    Log.d("Tag", "Total Spending Amount Education: " + " >>> " + totalSpendingAmountEdu + " >>> ");
+                    Log.d("Tag", "Total Spending Amount Grocery: " + " >>> " + totalSpendingAmountGro + " >>> ");
+                    Log.d("Tag", "Total Spending Amount Mis: " + " >>> " + totalSpendingAmountMis + " >>> ");
+                    Log.d("Tag", "Total Spending Amount Travel: " + " >>> " + totalSpendingAmountTv + " >>> ");
+
+                    loadBudgets(budgetCategories);
+                }, 1000); // 5-second delay
+            }
         });
 
-        double totalSpendingAmount = budgetShCat - budgetShs;
-        budgetSh.add(totalSpendingAmount);
 
-
-        Log.d("Tag","Total Spending Amount: " + budgetSh + " >>> " + totalSpendingAmount + " >>> " +budgetShCat );
-
-
-
-       BudgetTotal total = new BudgetTotal(budgetId,totalSpendingAmount,specifyItemName);
-       BudgetsTotalDatabase.databaseWriteExecutor.execute(() -> budgetsTotalDatabase.budgetTotalDao().insert(total));
 
 
 
         return binding.getRoot();
     }
+
+
+
 
     public void showAlertDialogButtonClicked(String specifyItem, int postions, String itemPosition, boolean isUpdate) {
         // Create an alert builder
@@ -275,8 +358,13 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
             if (!editText.getText().toString().trim().isEmpty() && previousAmount > 0) {
                 amount = Integer.parseInt(editText.getText().toString().trim());
                 if (amount > 0) {
-                    BudgetCategory budgetCategory = new BudgetCategory(postions, itemPosition, amount, 0);
+                    BudgetCategory budgetCategory = new BudgetCategory(postions, itemPosition, amount, totalSpendingAmountFd);
+                    Budget budget = new Budget();
+                    budget.setCatAmount(amount);
+                    BudgetsDatabase.databaseWriteExecutor.execute(() -> {
+                        budgetsDatabase.budgetDao().insertBudget(budget);
 
+                    });
                     BudgetCategoryDatabase.databaseWriteExecutor.execute(() -> budgetCategoryDatabase.budgetCategoryDao().insertBudgetCategory(budgetCategory));
                     dialog.dismiss();
                 }else if(!editText.getText().toString().trim().isEmpty()){
@@ -305,9 +393,9 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
         dialog.show();
     }
 
-    private void loadBudgets(List<BudgetCategory> budgetCategory) {
+    private void loadBudgets(ArrayList<BudgetCategory> budgetCategories) {
 
-        budgetCategoryAdapter = new BudgetCategoryAdapter(budgetCategory, this); // Use the correct constructor
+        budgetCategoryAdapter = new BudgetCategoryAdapter(budgetCategories, this,totalSpendingAmountSh, totalSpendingAmountFd, totalSpendingAmountEdu, totalSpendingAmountGro, totalSpendingAmountMis, totalSpendingAmountTv); // Use the correct constructor
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setAdapter(budgetCategoryAdapter);
 
@@ -402,5 +490,6 @@ public class BudgetFragment extends Fragment implements BudgetCategoryAdapter.On
 
         Log.d("Current Month", "Month: " + currentMonth + " (" + monthName + ")");
     }
+
 
 }

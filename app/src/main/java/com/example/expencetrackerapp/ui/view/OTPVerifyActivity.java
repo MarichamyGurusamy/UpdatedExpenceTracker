@@ -66,24 +66,24 @@ public class OTPVerifyActivity extends AppCompatActivity {
         Toast.makeText(this, "OTP: " + generatedOtp, Toast.LENGTH_SHORT).show();
 
         // Autofill OTP into the input fields
-        autofillOtp(generatedOtp);
+        //autofillOtp(generatedOtp);
     }
 
 
-    private void autofillOtp(int otp) {
-        // Convert the generated OTP to a string
-        String otpString = String.valueOf(otp);
-
-        // Set each character to the corresponding input field
-        if (otpString.length() == 6) {
-            binding.inputCodeOne.setText(String.valueOf(otpString.charAt(0)));
-            binding.inputCodeTwo.setText(String.valueOf(otpString.charAt(1)));
-            binding.inputCodeThree.setText(String.valueOf(otpString.charAt(2)));
-            binding.inputCodeFour.setText(String.valueOf(otpString.charAt(3)));
-            binding.inputCodeFive.setText(String.valueOf(otpString.charAt(4)));
-            binding.inputCodeSix.setText(String.valueOf(otpString.charAt(5)));
-        }
-    }
+//    private void autofillOtp(int otp) {
+//        // Convert the generated OTP to a string
+//        String otpString = String.valueOf(otp);
+//
+//        // Set each character to the corresponding input field
+//        if (otpString.length() == 6) {
+//            binding.inputCodeOne.setText(String.valueOf(otpString.charAt(0)));
+//            binding.inputCodeTwo.setText(String.valueOf(otpString.charAt(1)));
+//            binding.inputCodeThree.setText(String.valueOf(otpString.charAt(2)));
+//            binding.inputCodeFour.setText(String.valueOf(otpString.charAt(3)));
+//            binding.inputCodeFive.setText(String.valueOf(otpString.charAt(4)));
+//            binding.inputCodeSix.setText(String.valueOf(otpString.charAt(5)));
+//        }
+//    }
 
 
     private void sendNotification(int otp) {
@@ -137,7 +137,7 @@ public class OTPVerifyActivity extends AppCompatActivity {
         if (!enteredOtp.isEmpty()) {
             if (Integer.parseInt(enteredOtp) == generatedOtp) {
 
-                SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                SharedPreferences sharedPreferences = getSharedPreferences("MyPrefslog", MODE_PRIVATE);
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
 

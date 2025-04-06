@@ -1,11 +1,17 @@
 package com.example.expencetrackerapp.ui.view;
 
+import android.Manifest;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.expencetrackerapp.R;
 import com.example.expencetrackerapp.databinding.ActivitySecondBinding;
@@ -21,7 +27,9 @@ public class AllDetailsActivity extends AppCompatActivity  implements FragmentNa
 
     ActivitySecondBinding binding;
 
+    private static final int SMS_PERMISSION_CODE = 123;
 
+    private final String PREFERENCE_NAME = "MyPrefs";
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +46,7 @@ public class AllDetailsActivity extends AppCompatActivity  implements FragmentNa
                 finish();
             }
         });
-
+        checkForSMSPermissions();
     }
 
     @Override
@@ -82,5 +90,47 @@ public class AllDetailsActivity extends AppCompatActivity  implements FragmentNa
         }
 
     }
+    private void checkForSMSPermissions() {
+        // Check if the SMS permissions have already been granted
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+
+            // If permission is not granted, request SMS permissions
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS}, SMS_PERMISSION_CODE);
+        } else {
+            // Permissions are already granted, you can continue your SMS-related functionality here
+            Toast.makeText(this, "SMS Permissions are already granted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Check if the request code matches the SMS permission request code
+        if (requestCode == SMS_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission was granted
+                Toast.makeText(this, "SMS Permission Granted", Toast.LENGTH_SHORT).show();
+                // Proceed with SMS-related functionality
+            } else {
+                // Permission was denied
+                Toast.makeText(this, "SMS Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
+//
+//        // Clear all data
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        editor.clear();
+//        editor.apply();
+//    }
 
 }

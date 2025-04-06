@@ -14,7 +14,7 @@ import com.example.expencetrackerapp.models.BudgetTotal;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {BudgetTotal.class}, version = 1, exportSchema = false)
+@Database(entities = {BudgetTotal.class}, version = 2, exportSchema = false)
 public abstract class BudgetsTotalDatabase extends RoomDatabase {
 
     public abstract BudgetTotalDao budgetTotalDao(); // Add this line
